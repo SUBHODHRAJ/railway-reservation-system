@@ -7,7 +7,7 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
-
+const railwayRoutes = require("./routes/railwayRoutes");
 const trainRoutes = require("./routes/trainRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
@@ -25,6 +25,7 @@ app.use("/api/trains", trainRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/railway", railwayRoutes);
 
 app.get("/", (req, res) => {
     res.json({
