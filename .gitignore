@@ -39,3 +39,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+# Local database backups
+railway_reservation_before_real_data.sql
+railway_reservation_utf8.sql
