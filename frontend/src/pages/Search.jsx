@@ -25,11 +25,17 @@ function Search() {
 
     const [error, setError] = useState("");
 
+    const today = new Date();
+    const minDate = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, "0"),
+        String(today.getDate()).padStart(2, "0")
+    ].join("-");
+
     useEffect(() => {
         const loadStations = async () => {
             try {
                 const response = await getStations();
-
                 setStations(response.data);
             } catch (error) {
                 setError(
@@ -51,6 +57,22 @@ function Search() {
             ...previous,
             [name]: value
         }));
+
+        if (error) {
+            setError("");
+        }
+    };
+
+    const handleSwap = () => {
+        setForm(previous => ({
+            ...previous,
+            source: previous.destination,
+            destination: previous.source
+        }));
+
+        if (error) {
+            setError("");
+        }
     };
 
     const handleSubmit = async event => {
@@ -58,9 +80,14 @@ function Search() {
 
         setError("");
 
+        if (!form.source || !form.destination || !form.date) {
+            setError("Select your route and journey date.");
+            return;
+        }
+
         if (form.source === form.destination) {
             setError(
-                "Source and destination cannot be same"
+                "Source and destination must be different stations."
             );
             return;
         }
@@ -70,12 +97,12 @@ function Search() {
         try {
             const response = await searchTrains(form);
 
-        navigate("/search-results", {
-            state: {
-                search: form,
-                trains: response.data
-            }
-        });
+            navigate("/search-results", {
+                state: {
+                    search: form,
+                    trains: response.data
+                }
+            });
         } catch (error) {
             setError(
                 error.response?.data?.message ||
@@ -87,26 +114,36 @@ function Search() {
     };
 
     return (
-        <main className="page-container">
-            <section className="hero-section">
+        <main className="page-container search-page">
+            <section className="hero-section search-hero">
                 <p className="eyebrow">
-                    BOOK YOUR JOURNEY
+                    RAILWAY RESERVATION
                 </p>
 
-                <h1>Find your train</h1>
+                <h1>Where would you like to go?</h1>
 
                 <p>
-                    Search available railway journeys by
-                    station and date.
+                    Search scheduled trains and start your
+                    journey in a few simple steps.
                 </p>
             </section>
 
-            <section className="content-card">
+            <section className="content-card search-card">
+                <div className="search-card-heading">
+                    <div>
+                        <h2>Search trains</h2>
+
+                        <p className="muted">
+                            Choose your stations and journey date.
+                        </p>
+                    </div>
+                </div>
+
                 <form
                     className="search-form"
                     onSubmit={handleSubmit}
                 >
-                    <div className="form-group">
+                    <div className="form-group station-field">
                         <label htmlFor="source">
                             From
                         </label>
@@ -116,11 +153,15 @@ function Search() {
                             name="source"
                             value={form.source}
                             onChange={handleChange}
-                            disabled={loadingStations}
+                            disabled={
+                                loadingStations || searching
+                            }
                             required
                         >
                             <option value="">
-                                Select source
+                                {loadingStations
+                                    ? "Loading stations..."
+                                    : "Select departure station"}
                             </option>
 
                             {stations.map(station => (
@@ -136,23 +177,29 @@ function Search() {
                         </select>
                     </div>
 
-                    <button
-                        type="button"
-                        className="swap-button"
-                        onClick={() => {
-                            setForm(previous => ({
-                                ...previous,
-                                source:
-                                    previous.destination,
-                                destination:
-                                    previous.source
-                            }));
-                        }}
-                    >
-                        ⇄
-                    </button>
+                    <div className="swap-control">
+                        <span
+                            className="swap-label"
+                            aria-hidden="true"
+                        >
+                            Route
+                        </span>
 
-                    <div className="form-group">
+                        <button
+                            type="button"
+                            className="swap-button"
+                            onClick={handleSwap}
+                            disabled={
+                                loadingStations || searching
+                            }
+                            aria-label="Swap departure and destination stations"
+                            title="Swap stations"
+                        >
+                            ⇄
+                        </button>
+                    </div>
+
+                    <div className="form-group station-field">
                         <label htmlFor="destination">
                             To
                         </label>
@@ -162,11 +209,15 @@ function Search() {
                             name="destination"
                             value={form.destination}
                             onChange={handleChange}
-                            disabled={loadingStations}
+                            disabled={
+                                loadingStations || searching
+                            }
                             required
                         >
                             <option value="">
-                                Select destination
+                                {loadingStations
+                                    ? "Loading stations..."
+                                    : "Select arrival station"}
                             </option>
 
                             {stations.map(station => (
@@ -182,7 +233,7 @@ function Search() {
                         </select>
                     </div>
 
-                    <div className="form-group">
+                    <div className="form-group date-field">
                         <label htmlFor="date">
                             Journey date
                         </label>
@@ -191,28 +242,35 @@ function Search() {
                             id="date"
                             name="date"
                             type="date"
+                            min={minDate}
                             value={form.date}
                             onChange={handleChange}
+                            disabled={searching}
                             required
                         />
                     </div>
 
-                    <button
-                        className="primary-button search-button"
-                        type="submit"
-                        disabled={
-                            searching ||
-                            loadingStations
-                        }
-                    >
-                        {searching
-                            ? "Searching..."
-                            : "Search trains"}
-                    </button>
+                    <div className="search-action">
+                        <button
+                            className="primary-button search-button"
+                            type="submit"
+                            disabled={
+                                searching ||
+                                loadingStations
+                            }
+                        >
+                            {searching
+                                ? "Searching trains..."
+                                : "Search trains"}
+                        </button>
+                    </div>
                 </form>
 
                 {error && (
-                    <div className="form-error top-space">
+                    <div
+                        className="form-error top-space"
+                        role="alert"
+                    >
                         {error}
                     </div>
                 )}

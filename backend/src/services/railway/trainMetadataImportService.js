@@ -36,7 +36,7 @@ const importTrainMetadata = async (train) => {
         for (let i = 0; i < train.route.length; i++) {
             const stop = train.route[i];
 
-            let [stations] = await connection.query(
+            const [stations] = await connection.query(
                 `SELECT id
                  FROM stations
                  WHERE station_code = ?
@@ -55,8 +55,8 @@ const importTrainMetadata = async (train) => {
                      VALUES (?, ?, ?)`,
                     [
                         stop.stationCode,
-                        stop.stationName,
-                        stop.stationName
+                        stop.stationName || stop.stationCode,
+                        stop.stationName || stop.stationCode
                     ]
                 );
 
@@ -69,14 +69,16 @@ const importTrainMetadata = async (train) => {
                         train_id,
                         station_id,
                         stop_number,
+                        distance_km,
                         arrival_time,
                         departure_time
                     )
-                 VALUES (?, ?, ?, ?, ?)`,
+                 VALUES (?, ?, ?, ?, ?, ?)`,
                 [
                     trainId,
                     stationId,
                     i + 1,
+                    stop.distanceKm ?? null,
                     stop.arrival,
                     stop.departure
                 ]

@@ -30,6 +30,8 @@ const normalizeTrain = (response) => {
 
         returnTrain: train.returnTrain ?? null,
 
+        coachPosition: train.coachPosition ?? null,
+
         route: route
             .filter((stop) => stop.isHalt)
             .map((stop) => ({
@@ -53,3 +55,4 @@ const normalizeTrain = (response) => {
 module.exports = {
     normalizeTrain
 };
+

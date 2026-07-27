@@ -27,10 +27,38 @@ function Confirmation() {
         passengers
     } = state;
 
+    const formatDate = date => {
+        if (!date) {
+            return "—";
+        }
+
+        const value = String(date).slice(0, 10);
+        const [year, month, day] = value.split("-");
+
+        if (!year || !month || !day) {
+            return date;
+        }
+
+        return new Intl.DateTimeFormat("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+        }).format(
+            new Date(
+                Number(year),
+                Number(month) - 1,
+                Number(day)
+            )
+        );
+    };
+
     return (
-        <main className="page-container">
+        <main className="page-container confirmation-page">
             <section className="confirmation-card">
-                <div className="success-icon">
+                <div
+                    className="success-icon"
+                    aria-hidden="true"
+                >
                     ✓
                 </div>
 
@@ -38,118 +66,156 @@ function Confirmation() {
                     BOOKING CONFIRMED
                 </p>
 
-                <h1>Your ticket is confirmed</h1>
+                <h1>Your journey is confirmed</h1>
 
-                <p className="muted">
-                    Your seats have been booked
-                    successfully.
+                <p className="muted confirmation-subtitle">
+                    Your reservation was completed
+                    successfully. Keep your PNR available
+                    for booking reference.
                 </p>
 
                 <div className="pnr-box">
-                    <span>PNR</span>
+                    <span>PNR NUMBER</span>
                     <strong>{booking.pnr}</strong>
                 </div>
 
-                <div className="ticket-route">
-                    <div>
-                        <strong>
-                            {search?.source}
-                        </strong>
-                        <span>From</span>
+                <section className="confirmation-ticket">
+                    <div className="confirmation-ticket-header">
+                        <div>
+                            <span>Train</span>
+
+                            <strong>
+                                {journey?.train_number || "—"}
+                            </strong>
+                        </div>
+
+                        <span className="confirmed-badge">
+                            Confirmed
+                        </span>
                     </div>
 
-                    <div className="ticket-arrow">
-                        →
+                    <div className="ticket-route">
+                        <div>
+                            <strong>
+                                {search?.source || "—"}
+                            </strong>
+
+                            <span>Departure</span>
+                        </div>
+
+                        <div
+                            className="ticket-arrow"
+                            aria-hidden="true"
+                        >
+                            →
+                        </div>
+
+                        <div>
+                            <strong>
+                                {search?.destination || "—"}
+                            </strong>
+
+                            <span>Arrival</span>
+                        </div>
                     </div>
 
-                    <div>
-                        <strong>
-                            {search?.destination}
-                        </strong>
-                        <span>To</span>
+                    <div className="ticket-details">
+                        <div>
+                            <span>Date</span>
+
+                            <strong>
+                                {formatDate(
+                                    journey?.journey_date ||
+                                    search?.date
+                                )}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Class</span>
+                            <strong>{classType || "—"}</strong>
+                        </div>
+
+                        <div>
+                            <span>Passengers</span>
+
+                            <strong>
+                                {passengers?.length || 0}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Status</span>
+
+                            <strong>
+                                {paymentResult.bookingStatus}
+                            </strong>
+                        </div>
                     </div>
-                </div>
 
-                <div className="ticket-details">
-                    <div>
-                        <span>Train</span>
-                        <strong>
-                            {journey?.train_number}
-                        </strong>
-                    </div>
+                    {passengers?.length > 0 && (
+                        <div className="ticket-passengers">
+                            <div className="passenger-list-heading">
+                                <h2>Passengers</h2>
 
-                    <div>
-                        <span>Date</span>
-                        <strong>
-                            {journey?.journey_date}
-                        </strong>
-                    </div>
+                                <span>
+                                    {passengers.length}{" "}
+                                    {passengers.length === 1
+                                        ? "traveller"
+                                        : "travellers"}
+                                </span>
+                            </div>
 
-                    <div>
-                        <span>Class</span>
-                        <strong>{classType}</strong>
-                    </div>
+                            {passengers.map(
+                                (passenger, index) => {
+                                    const seat = seats?.find(
+                                        item =>
+                                            item.seat_id ===
+                                            passenger.seatId
+                                    );
 
-                    <div>
-                        <span>Status</span>
-                        <strong>
-                            {
-                                paymentResult.bookingStatus
-                            }
-                        </strong>
-                    </div>
-                </div>
-
-                {passengers?.length > 0 && (
-                    <div className="ticket-passengers">
-                        <h2>Passengers</h2>
-
-                        {passengers.map(passenger => {
-                            const seat =
-                                seats?.find(
-                                    item =>
-                                        item.seat_id ===
-                                        passenger.seatId
-                                );
-
-                            return (
-                                <div
-                                    className="review-passenger"
-                                    key={passenger.seatId}
-                                >
-                                    <div>
-                                        <strong>
-                                            {
-                                                passenger.name
+                                    return (
+                                        <div
+                                            className="review-passenger"
+                                            key={
+                                                passenger.seatId ??
+                                                index
                                             }
-                                        </strong>
+                                        >
+                                            <div>
+                                                <strong>
+                                                    {passenger.name}
+                                                </strong>
 
-                                        <span>
-                                            {passenger.age}
-                                            {" • "}
-                                            {
-                                                passenger.gender
-                                            }
-                                        </span>
-                                    </div>
+                                                <span>
+                                                    {passenger.age}
+                                                    {" • "}
+                                                    {passenger.gender}
+                                                </span>
+                                            </div>
 
-                                    <strong>
-                                        {
-                                            seat?.coach_number
-                                        }
-                                        {" / "}
-                                        {
-                                            seat?.seat_number
-                                        }
-                                    </strong>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
+                                            <div className="confirmed-seat">
+                                                <span>Seat</span>
+
+                                                <strong>
+                                                    {seat?.coach_number ||
+                                                        "—"}
+                                                    {" / "}
+                                                    {seat?.seat_number ||
+                                                        "—"}
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                            )}
+                        </div>
+                    )}
+                </section>
 
                 <div className="confirmation-actions">
                     <button
+                        type="button"
                         className="primary-button"
                         onClick={() =>
                             navigate(
@@ -161,6 +227,7 @@ function Confirmation() {
                     </button>
 
                     <button
+                        type="button"
                         className="secondary-action-button"
                         onClick={() =>
                             navigate("/my-bookings")

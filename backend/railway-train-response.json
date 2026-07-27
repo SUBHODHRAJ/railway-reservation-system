@@ -1,0 +1,181 @@
+{
+    "source":  "external",
+    "provider":  "railradar",
+    "reservationInventory":  "LOCAL",
+    "localTrain":  {
+                       "id":  1,
+                       "train_number":  "12608",
+                       "train_name":  "Lalbagh Express"
+                   },
+    "train":  {
+                  "trainNumber":  "12608",
+                  "trainName":  "Lalbagh SF Express",
+                  "type":  "Mail/Express",
+                  "category":  "Express",
+                  "source":  {
+                                 "code":  "SBC",
+                                 "name":  "KRANTIVIRA SANGOLLI RAYANNA (BENGALURU)"
+                             },
+                  "destination":  {
+                                      "code":  "MAS",
+                                      "name":  "PURATCHI THALAIVAR DR. MGR CTL CHENNAI"
+                                  },
+                  "runDays":  [
+                                  "mon",
+                                  "tue",
+                                  "wed",
+                                  "thu",
+                                  "fri",
+                                  "sat",
+                                  "sun"
+                              ],
+                  "distanceKm":  354,
+                  "durationMinutes":  355,
+                  "returnTrain":  "12607",
+                  "route":  [
+                                {
+                                    "sequence":  1,
+                                    "stationCode":  "SBC",
+                                    "stationName":  "KRANTIVIRA SANGOLLI RAYANNA (BENGALURU)",
+                                    "arrival":  null,
+                                    "arrivalDay":  null,
+                                    "departure":  "06:25",
+                                    "departureDay":  1,
+                                    "platform":  "1",
+                                    "distanceKm":  0
+                                },
+                                {
+                                    "sequence":  2,
+                                    "stationCode":  "BNC",
+                                    "stationName":  "BANGALORE CANT",
+                                    "arrival":  "06:35",
+                                    "arrivalDay":  1,
+                                    "departure":  "06:37",
+                                    "departureDay":  1,
+                                    "platform":  "2",
+                                    "distanceKm":  4
+                                },
+                                {
+                                    "sequence":  7,
+                                    "stationCode":  "KJM",
+                                    "stationName":  "KRISHNARAJAPURM",
+                                    "arrival":  "06:49",
+                                    "arrivalDay":  1,
+                                    "departure":  "06:51",
+                                    "departureDay":  1,
+                                    "platform":  "2",
+                                    "distanceKm":  14
+                                },
+                                {
+                                    "sequence":  18,
+                                    "stationCode":  "BWT",
+                                    "stationName":  "BANGARAPET JN.",
+                                    "arrival":  "07:29",
+                                    "arrivalDay":  1,
+                                    "departure":  "07:30",
+                                    "departureDay":  1,
+                                    "platform":  "4",
+                                    "distanceKm":  70
+                                },
+                                {
+                                    "sequence":  23,
+                                    "stationCode":  "KPN",
+                                    "stationName":  "KUPPAM",
+                                    "arrival":  "07:54",
+                                    "arrivalDay":  1,
+                                    "departure":  "07:55",
+                                    "departureDay":  1,
+                                    "platform":  "1",
+                                    "distanceKm":  102
+                                },
+                                {
+                                    "sequence":  27,
+                                    "stationCode":  "JTJ",
+                                    "stationName":  "JOLARPETTAI JN.",
+                                    "arrival":  "08:38",
+                                    "arrivalDay":  1,
+                                    "departure":  "08:40",
+                                    "departureDay":  1,
+                                    "platform":  "5",
+                                    "distanceKm":  140
+                                },
+                                {
+                                    "sequence":  32,
+                                    "stationCode":  "AB",
+                                    "stationName":  "AMBUR",
+                                    "arrival":  "09:05",
+                                    "arrivalDay":  1,
+                                    "departure":  "09:07",
+                                    "departureDay":  1,
+                                    "platform":  "2",
+                                    "distanceKm":  172
+                                },
+                                {
+                                    "sequence":  41,
+                                    "stationCode":  "KPD",
+                                    "stationName":  "KATPADI JN",
+                                    "arrival":  "09:48",
+                                    "arrivalDay":  1,
+                                    "departure":  "09:50",
+                                    "departureDay":  1,
+                                    "platform":  "2",
+                                    "distanceKm":  224
+                                },
+                                {
+                                    "sequence":  45,
+                                    "stationCode":  "WJR",
+                                    "stationName":  "WALAJAH ROAD",
+                                    "arrival":  "10:08",
+                                    "arrivalDay":  1,
+                                    "departure":  "10:10",
+                                    "departureDay":  1,
+                                    "platform":  "2",
+                                    "distanceKm":  248
+                                },
+                                {
+                                    "sequence":  48,
+                                    "stationCode":  "SHU",
+                                    "stationName":  "SHOLINGHUR",
+                                    "arrival":  "10:23",
+                                    "arrivalDay":  1,
+                                    "departure":  "10:25",
+                                    "departureDay":  1,
+                                    "platform":  "2",
+                                    "distanceKm":  263
+                                },
+                                {
+                                    "sequence":  53,
+                                    "stationCode":  "AJJ",
+                                    "stationName":  "ARAKKONAM JN.",
+                                    "arrival":  "10:43",
+                                    "arrivalDay":  1,
+                                    "departure":  "10:45",
+                                    "departureDay":  1,
+                                    "platform":  "2",
+                                    "distanceKm":  285
+                                },
+                                {
+                                    "sequence":  80,
+                                    "stationCode":  "PER",
+                                    "stationName":  "PERAMBUR",
+                                    "arrival":  "11:33",
+                                    "arrivalDay":  1,
+                                    "departure":  "11:35",
+                                    "departureDay":  1,
+                                    "platform":  "1",
+                                    "distanceKm":  348
+                                },
+                                {
+                                    "sequence":  84,
+                                    "stationCode":  "MAS",
+                                    "stationName":  "PURATCHI THALAIVAR DR. MGR CTL CHENNAI",
+                                    "arrival":  "12:20",
+                                    "arrivalDay":  1,
+                                    "departure":  null,
+                                    "departureDay":  null,
+                                    "platform":  "8",
+                                    "distanceKm":  354
+                                }
+                            ]
+              }
+}

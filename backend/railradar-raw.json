@@ -1,0 +1,1428 @@
+{
+  "success": true,
+  "data": {
+    "train": {
+      "number": "12608",
+      "name": "Lalbagh SF Express",
+      "type": "Mail/Express",
+      "category": "Express",
+      "source": {
+        "code": "SBC",
+        "name": "KRANTIVIRA SANGOLLI RAYANNA (BENGALURU)",
+        "lat": 12.978174,
+        "lng": 77.56956
+      },
+      "destination": {
+        "code": "MAS",
+        "name": "PURATCHI THALAIVAR DR. MGR CTL CHENNAI",
+        "lat": 13.082423,
+        "lng": 80.275962
+      },
+      "runDays": [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun"
+      ],
+      "distance": 354,
+      "duration": 355,
+      "avgSpeed": 59.8,
+      "maxSpeed": 88.4,
+      "totalHalts": 13,
+      "returnTrain": "12607",
+      "coachPosition": "ENG-LPR-GEN-GEN-GEN-D10-D9-D8-D7-D6-PC-D5-D4-D3-D2-D1-C2-C1-GEN-GEN-GEN-SLRDP"
+    },
+    "route": [
+      {
+        "sequence": 1,
+        "station": {
+          "code": "SBC",
+          "name": "KRANTIVIRA SANGOLLI RAYANNA (BENGALURU)",
+          "lat": 12.978174,
+          "lng": 77.56956
+        },
+        "isHalt": true,
+        "platform": "1",
+        "speedToNextStationKmph": 24,
+        "departure": "06:25",
+        "departureDay": 1,
+        "distance": 0
+      },
+      {
+        "sequence": 2,
+        "station": {
+          "code": "BNC",
+          "name": "BANGALORE CANT",
+          "lat": 12.993687,
+          "lng": 77.598
+        },
+        "isHalt": true,
+        "platform": "2",
+        "speedToNextStationKmph": 50,
+        "arrival": "06:35",
+        "arrivalDay": 1,
+        "departure": "06:37",
+        "departureDay": 1,
+        "distance": 4
+      },
+      {
+        "sequence": 3,
+        "station": {
+          "code": "BNCE",
+          "name": "BANGALORE EAST",
+          "lat": 13.001146,
+          "lng": 77.618345
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 50,
+        "arrival": "06:40",
+        "arrivalDay": 1,
+        "departure": "06:40",
+        "departureDay": 1,
+        "distance": 6.9
+      },
+      {
+        "sequence": 4,
+        "station": {
+          "code": "BYPW",
+          "name": "BAIYYAPPANAHALLI WEST CABIN",
+          "lat": 12.992935,
+          "lng": 77.637183
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 50,
+        "arrival": "06:43",
+        "arrivalDay": 1,
+        "departure": "06:43",
+        "departureDay": 1,
+        "distance": 9.3
+      },
+      {
+        "sequence": 5,
+        "station": {
+          "code": "BYPL",
+          "name": "BAIYYAPPANAHALLI",
+          "lat": 12.991209,
+          "lng": 77.651714
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 50,
+        "arrival": "06:46",
+        "arrivalDay": 1,
+        "departure": "06:46",
+        "departureDay": 1,
+        "distance": 11.1
+      },
+      {
+        "sequence": 6,
+        "station": {
+          "code": "BPHI",
+          "name": "BAIYYAPPANAHALLI CABIN",
+          "lat": 12.99567,
+          "lng": 77.66087
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 50,
+        "arrival": "06:47",
+        "arrivalDay": 1,
+        "departure": "06:47",
+        "departureDay": 1,
+        "distance": 12.2
+      },
+      {
+        "sequence": 7,
+        "station": {
+          "code": "KJM",
+          "name": "KRISHNARAJAPURM",
+          "lat": 13.000546,
+          "lng": 77.675456
+        },
+        "isHalt": true,
+        "platform": "2",
+        "speedToNextStationKmph": 88.4,
+        "arrival": "06:49",
+        "arrivalDay": 1,
+        "departure": "06:51",
+        "departureDay": 1,
+        "distance": 14
+      },
+      {
+        "sequence": 8,
+        "station": {
+          "code": "KJM-DLS",
+          "name": "KRISHNARAJAPURAM DIESEL LOCO SHED",
+          "lat": 13.00012,
+          "lng": 77.69229
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 88.4,
+        "arrival": "06:52",
+        "arrivalDay": 1,
+        "departure": "06:52",
+        "departureDay": 1,
+        "distance": 15.8
+      },
+      {
+        "sequence": 9,
+        "station": {
+          "code": "HDIH",
+          "name": "HOODI HALT",
+          "lat": 12.995923,
+          "lng": 77.71928
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 88.4,
+        "arrival": "06:54",
+        "arrivalDay": 1,
+        "departure": "06:54",
+        "departureDay": 1,
+        "distance": 18.8
+      },
+      {
+        "sequence": 10,
+        "station": {
+          "code": "WHPC",
+          "name": "WHITEFIELD PANEL CABIN",
+          "lat": 12.99586,
+          "lng": 77.7274
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 88.4,
+        "arrival": "06:55",
+        "arrivalDay": 1,
+        "departure": "06:55",
+        "departureDay": 1,
+        "distance": 19.7
+      },
+      {
+        "sequence": 11,
+        "station": {
+          "code": "SGWF",
+          "name": "WHITEFIELD SATELLITE GOODS TERMINAL",
+          "lat": 12.99801,
+          "lng": 77.73885
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 88.4,
+        "arrival": "06:56",
+        "arrivalDay": 1,
+        "departure": "06:56",
+        "departureDay": 1,
+        "distance": 20.9
+      },
+      {
+        "sequence": 12,
+        "station": {
+          "code": "WFD",
+          "name": "WHITEFIELD",
+          "lat": 12.9964,
+          "lng": 77.761423
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 88.4,
+        "arrival": "06:57",
+        "arrivalDay": 1,
+        "departure": "06:57",
+        "departureDay": 1,
+        "distance": 23.4
+      },
+      {
+        "sequence": 13,
+        "station": {
+          "code": "DKN",
+          "name": "DEVANGONTHI",
+          "lat": 12.985148,
+          "lng": 77.831294
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 88.4,
+        "arrival": "07:03",
+        "arrivalDay": 1,
+        "departure": "07:03",
+        "departureDay": 1,
+        "distance": 31.3
+      },
+      {
+        "sequence": 14,
+        "station": {
+          "code": "MLO",
+          "name": "MALUR",
+          "lat": 12.992853,
+          "lng": 77.938737
+        },
+        "isHalt": false,
+        "platform": "4",
+        "speedToNextStationKmph": 88.4,
+        "arrival": "07:11",
+        "arrivalDay": 1,
+        "departure": "07:11",
+        "departureDay": 1,
+        "distance": 43.4
+      },
+      {
+        "sequence": 15,
+        "station": {
+          "code": "BFW",
+          "name": "BYATRAYANHALLI",
+          "lat": 12.995527,
+          "lng": 78.017494
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 88.4,
+        "arrival": "07:17",
+        "arrivalDay": 1,
+        "departure": "07:17",
+        "departureDay": 1,
+        "distance": 52
+      },
+      {
+        "sequence": 16,
+        "station": {
+          "code": "TCL",
+          "name": "TYAKAL",
+          "lat": 12.984583,
+          "lng": 78.071113
+        },
+        "isHalt": false,
+        "platform": "4",
+        "speedToNextStationKmph": 88.4,
+        "arrival": "07:21",
+        "arrivalDay": 1,
+        "departure": "07:21",
+        "departureDay": 1,
+        "distance": 58
+      },
+      {
+        "sequence": 17,
+        "station": {
+          "code": "MZV",
+          "name": "MARALAHALLI",
+          "lat": 12.986949,
+          "lng": 78.124357
+        },
+        "isHalt": false,
+        "platform": "4",
+        "speedToNextStationKmph": 88.4,
+        "arrival": "07:25",
+        "arrivalDay": 1,
+        "departure": "07:25",
+        "departureDay": 1,
+        "distance": 64
+      },
+      {
+        "sequence": 18,
+        "station": {
+          "code": "BWT",
+          "name": "BANGARAPET JN.",
+          "lat": 12.985495,
+          "lng": 78.178224
+        },
+        "isHalt": true,
+        "platform": "4",
+        "speedToNextStationKmph": 80,
+        "arrival": "07:29",
+        "arrivalDay": 1,
+        "departure": "07:30",
+        "departureDay": 1,
+        "distance": 70
+      },
+      {
+        "sequence": 19,
+        "station": {
+          "code": "VRDP",
+          "name": "VARADAPURA",
+          "lat": 12.922451,
+          "lng": 78.191444
+        },
+        "isHalt": false,
+        "platform": "1",
+        "speedToNextStationKmph": 80,
+        "arrival": "07:35",
+        "arrivalDay": 1,
+        "departure": "07:35",
+        "departureDay": 1,
+        "distance": 76.8
+      },
+      {
+        "sequence": 20,
+        "station": {
+          "code": "KSM",
+          "name": "KAMASAMUDRAM",
+          "lat": 12.880495,
+          "lng": 78.200563
+        },
+        "isHalt": false,
+        "platform": "5",
+        "speedToNextStationKmph": 80,
+        "arrival": "07:38",
+        "arrivalDay": 1,
+        "departure": "07:38",
+        "departureDay": 1,
+        "distance": 81.3
+      },
+      {
+        "sequence": 21,
+        "station": {
+          "code": "BSM",
+          "name": "BISANATTAM",
+          "lat": 12.842245,
+          "lng": 78.249858
+        },
+        "isHalt": false,
+        "platform": "1",
+        "speedToNextStationKmph": 80,
+        "arrival": "07:43",
+        "arrivalDay": 1,
+        "departure": "07:43",
+        "departureDay": 1,
+        "distance": 87.9
+      },
+      {
+        "sequence": 22,
+        "station": {
+          "code": "GDP",
+          "name": "GUDUPULLI",
+          "lat": 12.803477,
+          "lng": 78.274771
+        },
+        "isHalt": false,
+        "platform": "1",
+        "speedToNextStationKmph": 80,
+        "arrival": "07:47",
+        "arrivalDay": 1,
+        "departure": "07:47",
+        "departureDay": 1,
+        "distance": 92.7
+      },
+      {
+        "sequence": 23,
+        "station": {
+          "code": "KPN",
+          "name": "KUPPAM",
+          "lat": 12.74728,
+          "lng": 78.340363
+        },
+        "isHalt": true,
+        "platform": "1",
+        "speedToNextStationKmph": 53,
+        "arrival": "07:54",
+        "arrivalDay": 1,
+        "departure": "07:55",
+        "departureDay": 1,
+        "distance": 102
+      },
+      {
+        "sequence": 24,
+        "station": {
+          "code": "MAR",
+          "name": "MULANUR",
+          "lat": 12.662548,
+          "lng": 78.406755
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 53,
+        "arrival": "08:10",
+        "arrivalDay": 1,
+        "departure": "08:10",
+        "departureDay": 1,
+        "distance": 115.7
+      },
+      {
+        "sequence": 25,
+        "station": {
+          "code": "PU",
+          "name": "PATCHUR",
+          "lat": 12.586531,
+          "lng": 78.469733
+        },
+        "isHalt": false,
+        "platform": "5",
+        "speedToNextStationKmph": 53,
+        "arrival": "08:24",
+        "arrivalDay": 1,
+        "departure": "08:24",
+        "departureDay": 1,
+        "distance": 128
+      },
+      {
+        "sequence": 26,
+        "station": {
+          "code": "SKPT",
+          "name": "SOMANAYAKKANPTI",
+          "lat": 12.57503,
+          "lng": 78.542254
+        },
+        "isHalt": false,
+        "platform": "5",
+        "speedToNextStationKmph": 53,
+        "arrival": "08:35",
+        "arrivalDay": 1,
+        "departure": "08:35",
+        "departureDay": 1,
+        "distance": 137.2
+      },
+      {
+        "sequence": 27,
+        "station": {
+          "code": "JTJ",
+          "name": "JOLARPETTAI JN.",
+          "lat": 12.56399,
+          "lng": 78.57839
+        },
+        "isHalt": true,
+        "platform": "5",
+        "speedToNextStationKmph": 76.8,
+        "arrival": "08:38",
+        "arrivalDay": 1,
+        "departure": "08:40",
+        "departureDay": 1,
+        "distance": 140
+      },
+      {
+        "sequence": 28,
+        "station": {
+          "code": "XX-JTJB",
+          "name": "JOLARPETTAI BYPASS CABIN",
+          "lat": 12.53814,
+          "lng": 78.56546
+        },
+        "isHalt": false,
+        "platform": "5",
+        "speedToNextStationKmph": 76.8,
+        "arrival": "08:42",
+        "arrivalDay": 1,
+        "departure": "08:42",
+        "departureDay": 1,
+        "distance": 142.5
+      },
+      {
+        "sequence": 29,
+        "station": {
+          "code": "KDY",
+          "name": "KETTANDAPATTI",
+          "lat": 12.625281,
+          "lng": 78.570896
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 76.8,
+        "arrival": "08:49",
+        "arrivalDay": 1,
+        "departure": "08:49",
+        "departureDay": 1,
+        "distance": 151.3
+      },
+      {
+        "sequence": 30,
+        "station": {
+          "code": "VN",
+          "name": "VANIYAMBADI",
+          "lat": 12.679344,
+          "lng": 78.622748
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 76.8,
+        "arrival": "08:55",
+        "arrivalDay": 1,
+        "departure": "08:55",
+        "departureDay": 1,
+        "distance": 158.7
+      },
+      {
+        "sequence": 31,
+        "station": {
+          "code": "VGM",
+          "name": "VINNAMANGALAM",
+          "lat": 12.72821,
+          "lng": 78.67861
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 76.8,
+        "arrival": "09:00",
+        "arrivalDay": 1,
+        "departure": "09:00",
+        "departureDay": 1,
+        "distance": 165.5
+      },
+      {
+        "sequence": 32,
+        "station": {
+          "code": "AB",
+          "name": "AMBUR",
+          "lat": 12.784066,
+          "lng": 78.721785
+        },
+        "isHalt": true,
+        "platform": "2",
+        "speedToNextStationKmph": 76.1,
+        "arrival": "09:05",
+        "arrivalDay": 1,
+        "departure": "09:07",
+        "departureDay": 1,
+        "distance": 172
+      },
+      {
+        "sequence": 33,
+        "station": {
+          "code": "PCKM",
+          "name": "PACHCHAKUPPAM",
+          "lat": 12.823475,
+          "lng": 78.758238
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 76.1,
+        "arrival": "09:12",
+        "arrivalDay": 1,
+        "departure": "09:12",
+        "departureDay": 1,
+        "distance": 178
+      },
+      {
+        "sequence": 34,
+        "station": {
+          "code": "MPI",
+          "name": "MELPATTI",
+          "lat": 12.858345,
+          "lng": 78.795185
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 76.1,
+        "arrival": "09:16",
+        "arrivalDay": 1,
+        "departure": "09:16",
+        "departureDay": 1,
+        "distance": 183.7
+      },
+      {
+        "sequence": 35,
+        "station": {
+          "code": "VLT",
+          "name": "VALATHOOR",
+          "lat": 12.889687,
+          "lng": 78.839676
+        },
+        "isHalt": false,
+        "platform": "3",
+        "speedToNextStationKmph": 76.1,
+        "arrival": "09:21",
+        "arrivalDay": 1,
+        "departure": "09:21",
+        "departureDay": 1,
+        "distance": 189.6
+      },
+      {
+        "sequence": 36,
+        "station": {
+          "code": "MEH",
+          "name": "MELALATHUR",
+          "lat": 12.917877,
+          "lng": 78.875262
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 76.1,
+        "arrival": "09:25",
+        "arrivalDay": 1,
+        "departure": "09:25",
+        "departureDay": 1,
+        "distance": 194.7
+      },
+      {
+        "sequence": 37,
+        "station": {
+          "code": "GYM",
+          "name": "GUDIYATTAM",
+          "lat": 12.937296,
+          "lng": 78.914347
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 76.1,
+        "arrival": "09:29",
+        "arrivalDay": 1,
+        "departure": "09:29",
+        "departureDay": 1,
+        "distance": 199.5
+      },
+      {
+        "sequence": 38,
+        "station": {
+          "code": "KVN",
+          "name": "KAVANUR",
+          "lat": 12.949054,
+          "lng": 78.969782
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 76.1,
+        "arrival": "09:33",
+        "arrivalDay": 1,
+        "departure": "09:33",
+        "departureDay": 1,
+        "distance": 205.6
+      },
+      {
+        "sequence": 39,
+        "station": {
+          "code": "VJ",
+          "name": "VIRINCHIPURAM",
+          "lat": 12.9622,
+          "lng": 79.029915
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 76.1,
+        "arrival": "09:39",
+        "arrivalDay": 1,
+        "departure": "09:39",
+        "departureDay": 1,
+        "distance": 212.1
+      },
+      {
+        "sequence": 40,
+        "station": {
+          "code": "LTI",
+          "name": "LATTERI",
+          "lat": 12.967043,
+          "lng": 79.066238
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 76.1,
+        "arrival": "09:42",
+        "arrivalDay": 1,
+        "departure": "09:42",
+        "departureDay": 1,
+        "distance": 216.2
+      },
+      {
+        "sequence": 41,
+        "station": {
+          "code": "KPD",
+          "name": "KATPADI JN",
+          "lat": 12.97218,
+          "lng": 79.13814
+        },
+        "isHalt": true,
+        "platform": "2",
+        "speedToNextStationKmph": 80,
+        "arrival": "09:48",
+        "arrivalDay": 1,
+        "departure": "09:50",
+        "departureDay": 1,
+        "distance": 224
+      },
+      {
+        "sequence": 42,
+        "station": {
+          "code": "SVUR",
+          "name": "SEVUR",
+          "lat": 12.9718,
+          "lng": 79.190102
+        },
+        "isHalt": false,
+        "platform": "1",
+        "speedToNextStationKmph": 80,
+        "arrival": "09:54",
+        "arrivalDay": 1,
+        "departure": "09:54",
+        "departureDay": 1,
+        "distance": 229.6
+      },
+      {
+        "sequence": 43,
+        "station": {
+          "code": "THL",
+          "name": "TIRUVALAM",
+          "lat": 12.975006,
+          "lng": 79.245911
+        },
+        "isHalt": false,
+        "platform": "8",
+        "speedToNextStationKmph": 80,
+        "arrival": "09:59",
+        "arrivalDay": 1,
+        "departure": "09:59",
+        "departureDay": 1,
+        "distance": 235.6
+      },
+      {
+        "sequence": 44,
+        "station": {
+          "code": "MCN",
+          "name": "MUKUNDARAYAPURM",
+          "lat": 12.978249,
+          "lng": 79.289201
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 80,
+        "arrival": "10:02",
+        "arrivalDay": 1,
+        "departure": "10:02",
+        "departureDay": 1,
+        "distance": 240.4
+      },
+      {
+        "sequence": 45,
+        "station": {
+          "code": "WJR",
+          "name": "WALAJAH ROAD",
+          "lat": 12.970931,
+          "lng": 79.360197
+        },
+        "isHalt": true,
+        "platform": "2",
+        "speedToNextStationKmph": 69.2,
+        "arrival": "10:08",
+        "arrivalDay": 1,
+        "departure": "10:10",
+        "departureDay": 1,
+        "distance": 248
+      },
+      {
+        "sequence": 46,
+        "station": {
+          "code": "MRLM",
+          "name": "MARUDALAM",
+          "lat": 12.996648,
+          "lng": 79.396735
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 69.2,
+        "arrival": "10:15",
+        "arrivalDay": 1,
+        "departure": "10:15",
+        "departureDay": 1,
+        "distance": 253.4
+      },
+      {
+        "sequence": 47,
+        "station": {
+          "code": "TUG",
+          "name": "THALANGAI",
+          "lat": 13.008597,
+          "lng": 79.44704
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 69.2,
+        "arrival": "10:17",
+        "arrivalDay": 1,
+        "departure": "10:17",
+        "departureDay": 1,
+        "distance": 255.9
+      },
+      {
+        "sequence": 48,
+        "station": {
+          "code": "SHU",
+          "name": "SHOLINGHUR",
+          "lat": 13.014113,
+          "lng": 79.486762
+        },
+        "isHalt": true,
+        "platform": "2",
+        "speedToNextStationKmph": 73.3,
+        "arrival": "10:23",
+        "arrivalDay": 1,
+        "departure": "10:25",
+        "departureDay": 1,
+        "distance": 263
+      },
+      {
+        "sequence": 49,
+        "station": {
+          "code": "MDVE",
+          "name": "MAHENDRAVADI",
+          "lat": 13.022121,
+          "lng": 79.517448
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 73.3,
+        "arrival": "10:28",
+        "arrivalDay": 1,
+        "departure": "10:28",
+        "departureDay": 1,
+        "distance": 266.6
+      },
+      {
+        "sequence": 50,
+        "station": {
+          "code": "AVN",
+          "name": "ANAVARDIKHANPETTAI",
+          "lat": 13.050776,
+          "lng": 79.567244
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 73.3,
+        "arrival": "10:33",
+        "arrivalDay": 1,
+        "departure": "10:33",
+        "departureDay": 1,
+        "distance": 273
+      },
+      {
+        "sequence": 51,
+        "station": {
+          "code": "CTRE",
+          "name": "CHITTERI",
+          "lat": 13.067948,
+          "lng": 79.598122
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 73.3,
+        "arrival": "10:36",
+        "arrivalDay": 1,
+        "departure": "10:36",
+        "departureDay": 1,
+        "distance": 277
+      },
+      {
+        "sequence": 52,
+        "station": {
+          "code": "MLPM",
+          "name": "MELPAKKAM",
+          "lat": 13.07919,
+          "lng": 79.64365
+        },
+        "isHalt": false,
+        "platform": "2",
+        "speedToNextStationKmph": 73.3,
+        "arrival": "10:41",
+        "arrivalDay": 1,
+        "departure": "10:41",
+        "departureDay": 1,
+        "distance": 282.3
+      },
+      {
+        "sequence": 53,
+        "station": {
+          "code": "AJJ",
+          "name": "ARAKKONAM JN.",
+          "lat": 13.082339,
+          "lng": 79.668525
+        },
+        "isHalt": true,
+        "platform": "2",
+        "speedToNextStationKmph": 78.8,
+        "arrival": "10:43",
+        "arrivalDay": 1,
+        "departure": "10:45",
+        "departureDay": 1,
+        "distance": 285
+      },
+      {
+        "sequence": 54,
+        "station": {
+          "code": "AJLS",
+          "name": "ARAKKONAM ELECTRIC LOCO SHED",
+          "lat": 13.082523,
+          "lng": 79.679679
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "10:46",
+        "arrivalDay": 1,
+        "departure": "10:46",
+        "departureDay": 1,
+        "distance": 286.3
+      },
+      {
+        "sequence": 55,
+        "station": {
+          "code": "PLMG",
+          "name": "PULIYAMANGALAM",
+          "lat": 13.083403,
+          "lng": 79.684979
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "10:46",
+        "arrivalDay": 1,
+        "departure": "10:46",
+        "departureDay": 1,
+        "distance": 286.9
+      },
+      {
+        "sequence": 56,
+        "station": {
+          "code": "MSU",
+          "name": "MOSUR",
+          "lat": 13.084937,
+          "lng": 79.712236
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "10:49",
+        "arrivalDay": 1,
+        "departure": "10:49",
+        "departureDay": 1,
+        "distance": 289.8
+      },
+      {
+        "sequence": 57,
+        "station": {
+          "code": "TO",
+          "name": "TIRUVALANGADU",
+          "lat": 13.090182,
+          "lng": 79.763766
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "10:53",
+        "arrivalDay": 1,
+        "departure": "10:53",
+        "departureDay": 1,
+        "distance": 295.4
+      },
+      {
+        "sequence": 58,
+        "station": {
+          "code": "MAF",
+          "name": "MANAVUR",
+          "lat": 13.096372,
+          "lng": 79.801259
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "10:56",
+        "arrivalDay": 1,
+        "departure": "10:56",
+        "departureDay": 1,
+        "distance": 299.5
+      },
+      {
+        "sequence": 59,
+        "station": {
+          "code": "SPAM",
+          "name": "SENJI PANAMBAKKAM",
+          "lat": 13.09452,
+          "lng": 79.836081
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "10:59",
+        "arrivalDay": 1,
+        "departure": "10:59",
+        "departureDay": 1,
+        "distance": 303.2
+      },
+      {
+        "sequence": 60,
+        "station": {
+          "code": "KBT",
+          "name": "KADAMBATTUR",
+          "lat": 13.099855,
+          "lng": 79.863147
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:01",
+        "arrivalDay": 1,
+        "departure": "11:01",
+        "departureDay": 1,
+        "distance": 306.3
+      },
+      {
+        "sequence": 61,
+        "station": {
+          "code": "EGT",
+          "name": "EGATTUR",
+          "lat": 13.107108,
+          "lng": 79.884172
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:03",
+        "arrivalDay": 1,
+        "departure": "11:03",
+        "departureDay": 1,
+        "distance": 308.7
+      },
+      {
+        "sequence": 62,
+        "station": {
+          "code": "TRL",
+          "name": "TIRUVALLUR",
+          "lat": 13.116192,
+          "lng": 79.91216
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:06",
+        "arrivalDay": 1,
+        "departure": "11:06",
+        "departureDay": 1,
+        "distance": 312
+      },
+      {
+        "sequence": 63,
+        "station": {
+          "code": "PTLR",
+          "name": "PUTLUR HALT",
+          "lat": 13.123026,
+          "lng": 79.937359
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:08",
+        "arrivalDay": 1,
+        "departure": "11:08",
+        "departureDay": 1,
+        "distance": 314.7
+      },
+      {
+        "sequence": 64,
+        "station": {
+          "code": "SVR",
+          "name": "SEVVAPET ROAD",
+          "lat": 13.125268,
+          "lng": 79.966062
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:10",
+        "arrivalDay": 1,
+        "departure": "11:10",
+        "departureDay": 1,
+        "distance": 317.8
+      },
+      {
+        "sequence": 65,
+        "station": {
+          "code": "VEU",
+          "name": "VEPPAMPATTU",
+          "lat": 13.123599,
+          "lng": 79.998422
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:13",
+        "arrivalDay": 1,
+        "departure": "11:13",
+        "departureDay": 1,
+        "distance": 321.2
+      },
+      {
+        "sequence": 66,
+        "station": {
+          "code": "TI",
+          "name": "TIRUNINRAVUR",
+          "lat": 13.123994,
+          "lng": 80.029744
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:15",
+        "arrivalDay": 1,
+        "departure": "11:15",
+        "departureDay": 1,
+        "distance": 324.5
+      },
+      {
+        "sequence": 67,
+        "station": {
+          "code": "NEC",
+          "name": "NEMILICHERRY HALT",
+          "lat": 13.121702,
+          "lng": 80.043756
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:17",
+        "arrivalDay": 1,
+        "departure": "11:17",
+        "departureDay": 1,
+        "distance": 326.4
+      },
+      {
+        "sequence": 68,
+        "station": {
+          "code": "PAB",
+          "name": "PATTABIRAM",
+          "lat": 13.118657,
+          "lng": 80.064985
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:18",
+        "arrivalDay": 1,
+        "departure": "11:18",
+        "departureDay": 1,
+        "distance": 328.6
+      },
+      {
+        "sequence": 69,
+        "station": {
+          "code": "HC",
+          "name": "HINDU COLLEGE",
+          "lat": 13.118483,
+          "lng": 80.07443
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:19",
+        "arrivalDay": 1,
+        "departure": "11:19",
+        "departureDay": 1,
+        "distance": 329.6
+      },
+      {
+        "sequence": 70,
+        "station": {
+          "code": "AVD",
+          "name": "AVADI",
+          "lat": 13.118274,
+          "lng": 80.101543
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:21",
+        "arrivalDay": 1,
+        "departure": "11:21",
+        "departureDay": 1,
+        "distance": 332.5
+      },
+      {
+        "sequence": 71,
+        "station": {
+          "code": "ANNR",
+          "name": "ANNANUR",
+          "lat": 13.116356,
+          "lng": 80.126913
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:23",
+        "arrivalDay": 1,
+        "departure": "11:23",
+        "departureDay": 1,
+        "distance": 335.2
+      },
+      {
+        "sequence": 72,
+        "station": {
+          "code": "TMVL",
+          "name": "TIRUMULLAIVAYIL",
+          "lat": 13.11519,
+          "lng": 80.1372
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:24",
+        "arrivalDay": 1,
+        "departure": "11:24",
+        "departureDay": 1,
+        "distance": 336.3
+      },
+      {
+        "sequence": 73,
+        "station": {
+          "code": "ABU",
+          "name": "AMBATTUR",
+          "lat": 13.114024,
+          "lng": 80.152861
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:25",
+        "arrivalDay": 1,
+        "departure": "11:25",
+        "departureDay": 1,
+        "distance": 338
+      },
+      {
+        "sequence": 74,
+        "station": {
+          "code": "PVM",
+          "name": "PATTARAVAKKAM",
+          "lat": 13.11439,
+          "lng": 80.166398
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:27",
+        "arrivalDay": 1,
+        "departure": "11:27",
+        "departureDay": 1,
+        "distance": 339.5
+      },
+      {
+        "sequence": 75,
+        "station": {
+          "code": "KOTR",
+          "name": "KORATTUR",
+          "lat": 13.113142,
+          "lng": 80.184152
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:28",
+        "arrivalDay": 1,
+        "departure": "11:28",
+        "departureDay": 1,
+        "distance": 341.4
+      },
+      {
+        "sequence": 76,
+        "station": {
+          "code": "VLK",
+          "name": "VILLIVAKKAM",
+          "lat": 13.110173,
+          "lng": 80.208962
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:30",
+        "arrivalDay": 1,
+        "departure": "11:30",
+        "departureDay": 1,
+        "distance": 344.2
+      },
+      {
+        "sequence": 77,
+        "station": {
+          "code": "XX-ICF",
+          "name": "INTEGRAL COACH FACTORY",
+          "lat": 13.10915,
+          "lng": 80.21865
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:31",
+        "arrivalDay": 1,
+        "departure": "11:31",
+        "departureDay": 1,
+        "distance": 345.2
+      },
+      {
+        "sequence": 78,
+        "station": {
+          "code": "PEW",
+          "name": "PERAMBUR LOCO WORKS",
+          "lat": 13.108377,
+          "lng": 80.22584
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:31",
+        "arrivalDay": 1,
+        "departure": "11:31",
+        "departureDay": 1,
+        "distance": 346
+      },
+      {
+        "sequence": 79,
+        "station": {
+          "code": "PCW",
+          "name": "PERAMBUR CARRIAGE WORKS",
+          "lat": 13.107281,
+          "lng": 80.238886
+        },
+        "isHalt": false,
+        "platform": "1",
+        "speedToNextStationKmph": 78.8,
+        "arrival": "11:33",
+        "arrivalDay": 1,
+        "departure": "11:33",
+        "departureDay": 1,
+        "distance": 347.4
+      },
+      {
+        "sequence": 80,
+        "station": {
+          "code": "PER",
+          "name": "PERAMBUR",
+          "lat": 13.107719,
+          "lng": 80.244414
+        },
+        "isHalt": true,
+        "platform": "1",
+        "speedToNextStationKmph": 8,
+        "arrival": "11:33",
+        "arrivalDay": 1,
+        "departure": "11:35",
+        "departureDay": 1,
+        "distance": 348
+      },
+      {
+        "sequence": 81,
+        "station": {
+          "code": "VJM",
+          "name": "VYASARPADI JEEVA",
+          "lat": 13.109196,
+          "lng": 80.25722
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 8,
+        "arrival": "11:46",
+        "arrivalDay": 1,
+        "departure": "11:46",
+        "departureDay": 1,
+        "distance": 349.5
+      },
+      {
+        "sequence": 82,
+        "station": {
+          "code": "VPY",
+          "name": "VYASARPADI",
+          "lat": 13.1099,
+          "lng": 80.26356
+        },
+        "isHalt": false,
+        "speedToNextStationKmph": 8,
+        "arrival": "11:52",
+        "arrivalDay": 1,
+        "departure": "11:52",
+        "departureDay": 1,
+        "distance": 350.3
+      },
+      {
+        "sequence": 83,
+        "station": {
+          "code": "BBQ",
+          "name": "BASIN BRIDGE JN",
+          "lat": 13.10239,
+          "lng": 80.27133
+        },
+        "isHalt": false,
+        "platform": "10",
+        "speedToNextStationKmph": 8,
+        "arrival": "12:03",
+        "arrivalDay": 1,
+        "departure": "12:03",
+        "departureDay": 1,
+        "distance": 351.7
+      },
+      {
+        "sequence": 84,
+        "station": {
+          "code": "MAS",
+          "name": "PURATCHI THALAIVAR DR. MGR CTL CHENNAI",
+          "lat": 13.082423,
+          "lng": 80.275962
+        },
+        "isHalt": true,
+        "platform": "8",
+        "arrival": "12:20",
+        "arrivalDay": 1,
+        "distance": 354
+      }
+    ]
+  },
+  "meta": {
+    "timestamp": "2026-07-27T21:57:19+05:30",
+    "traceId": "9b80be05-6bd3-4e72-8554-f2ed82a468f9",
+    "source": "database",
+    "executionTime": 60
+  }
+}

@@ -10,39 +10,60 @@ function PaymentFailed() {
     const booking = location.state?.booking;
 
     return (
-        <main className="page-container">
-            <section className="confirmation-card">
-                <div className="failure-icon">
+        <main className="page-container payment-failed-page">
+            <section className="confirmation-card failure-card">
+                <div
+                    className="failure-icon"
+                    aria-hidden="true"
+                >
                     ×
                 </div>
 
-                <p className="eyebrow">
+                <p className="eyebrow failure-eyebrow">
                     PAYMENT FAILED
                 </p>
 
-                <h1>Booking wasn't confirmed</h1>
+                <h1>Payment was not completed</h1>
 
-                <p className="muted">
-                    The simulated payment failed and
-                    the held seats were released.
+                <p className="muted confirmation-subtitle">
+                    Your booking was not confirmed. The
+                    seats held for this reservation have
+                    been released and can be booked again.
                 </p>
 
                 {booking?.pnr && (
-                    <div className="pnr-box">
-                        <span>PNR</span>
+                    <div className="failed-booking-reference">
+                        <span>Booking reference</span>
                         <strong>{booking.pnr}</strong>
                     </div>
                 )}
 
-                <button
-                    type="button"
-                    className="primary-button"
-                    onClick={() =>
-                        navigate("/search")
-                    }
-                >
-                    Search trains
-                </button>
+                <div className="failure-message">
+                    No payment was collected for this
+                    simulated transaction.
+                </div>
+
+                <div className="confirmation-actions">
+                    <button
+                        type="button"
+                        className="primary-button"
+                        onClick={() =>
+                            navigate("/search")
+                        }
+                    >
+                        Search trains
+                    </button>
+
+                    <button
+                        type="button"
+                        className="secondary-action-button"
+                        onClick={() =>
+                            navigate("/my-bookings")
+                        }
+                    >
+                        My bookings
+                    </button>
+                </div>
             </section>
         </main>
     );

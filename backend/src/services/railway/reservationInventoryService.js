@@ -1,11 +1,32 @@
 const db = require("../../config/db");
+const railwayService = require("./railwayService");
+const {
+    parseCoachComposition
+} = require("./coachCompositionService");
 
-const berthPattern = ["LB", "MB", "UB", "LB", "MB", "UB", "SL", "SU"];
+const berthPatterns = {
+    SL: ["LB", "MB", "UB", "LB", "MB", "UB", "SL", "SU"],
+    "3A": ["LB", "MB", "UB", "LB", "MB", "UB", "SL", "SU"],
+    "2A": ["LB", "UB", "LB", "UB", "SL", "SU"],
+    "1A": ["LB", "UB"]
+};
 
 const createInventory = async (trainNumber, journeyDate) => {
     let connection;
 
     try {
+        const externalTrain = await railwayService.getTrain(trainNumber);
+
+        const composition = parseCoachComposition(
+            externalTrain.coachPosition
+        );
+
+        if (composition.length === 0) {
+            throw new Error(
+                "No supported reservable coach composition available"
+            );
+        }
+
         connection = await db.getConnection();
         await connection.beginTransaction();
 
@@ -42,59 +63,72 @@ const createInventory = async (trainNumber, journeyDate) => {
             };
         }
 
+        let [coaches] = await connection.query(
+            `SELECT id, coach_number, class_type
+             FROM coaches
+             WHERE train_id = ?`,
+            [trainId]
+        );
+
+        if (coaches.length === 0) {
+            for (const coach of composition) {
+                const [coachResult] = await connection.query(
+                    `INSERT INTO coaches
+                        (train_id, coach_number, class_type)
+                     VALUES (?, ?, ?)`,
+                    [
+                        trainId,
+                        coach.coachNumber,
+                        coach.classType
+                    ]
+                );
+
+                const coachId = coachResult.insertId;
+                const pattern = berthPatterns[coach.classType];
+
+                for (
+                    let seatNumber = 1;
+                    seatNumber <= coach.seatCount;
+                    seatNumber++
+                ) {
+                    const berthType =
+                        pattern[(seatNumber - 1) % pattern.length];
+
+                    await connection.query(
+                        `INSERT INTO seats
+                            (coach_id, seat_number, berth_type)
+                         VALUES (?, ?, ?)`,
+                        [
+                            coachId,
+                            seatNumber,
+                            berthType
+                        ]
+                    );
+                }
+            }
+
+            [coaches] = await connection.query(
+                `SELECT id, coach_number, class_type
+                 FROM coaches
+                 WHERE train_id = ?`,
+                [trainId]
+            );
+        }
+
         const [journeyResult] = await connection.query(
-            `INSERT INTO journeys (train_id, journey_date)
+            `INSERT INTO journeys
+                (train_id, journey_date)
              VALUES (?, ?)`,
             [trainId, journeyDate]
         );
 
         const journeyId = journeyResult.insertId;
 
-        let [coaches] = await connection.query(
-            `SELECT id, coach_number
-             FROM coaches
-             WHERE train_id = ?
-             ORDER BY coach_number`,
-            [trainId]
-        );
-
-        if (coaches.length === 0) {
-            for (const coachNumber of ["S1", "S2", "S3"]) {
-                const [coachResult] = await connection.query(
-                    `INSERT INTO coaches
-                        (train_id, coach_number, class_type)
-                     VALUES (?, ?, 'SL')`,
-                    [trainId, coachNumber]
-                );
-
-                const coachId = coachResult.insertId;
-
-                for (let seatNumber = 1; seatNumber <= 72; seatNumber++) {
-                    const berthType =
-                        berthPattern[(seatNumber - 1) % berthPattern.length];
-
-                    await connection.query(
-                        `INSERT INTO seats
-                            (coach_id, seat_number, berth_type)
-                         VALUES (?, ?, ?)`,
-                        [coachId, seatNumber, berthType]
-                    );
-                }
-            }
-
-            [coaches] = await connection.query(
-                `SELECT id, coach_number
-                 FROM coaches
-                 WHERE train_id = ?
-                 ORDER BY coach_number`,
-                [trainId]
-            );
-        }
-
         const [seats] = await connection.query(
             `SELECT s.id
              FROM seats s
-             JOIN coaches c ON c.id = s.coach_id
+             JOIN coaches c
+               ON c.id = s.coach_id
              WHERE c.train_id = ?`,
             [trainId]
         );
