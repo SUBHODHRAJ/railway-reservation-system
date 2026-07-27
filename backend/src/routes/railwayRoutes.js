@@ -2,23 +2,40 @@ const express = require("express");
 const { param } = require("express-validator");
 
 const {
-    getExternalTrain
+    getExternalTrain,
+    importExternalTrain
 } = require("../controllers/railwayController");
+
+const {
+    authenticate,
+    adminOnly
+} = require("../middleware/authMiddleware");
 
 const validate = require("../middleware/validate");
 
 const router = express.Router();
 
+const trainNumberValidation = [
+    param("trainNumber")
+        .trim()
+        .matches(/^\d{5}$/)
+        .withMessage("Train number must be 5 digits")
+];
+
 router.get(
     "/trains/:trainNumber",
-    [
-        param("trainNumber")
-            .trim()
-            .matches(/^\d{5}$/)
-            .withMessage("Train number must be 5 digits")
-    ],
+    trainNumberValidation,
     validate,
     getExternalTrain
+);
+
+router.post(
+    "/trains/:trainNumber/import",
+    authenticate,
+    adminOnly,
+    trainNumberValidation,
+    validate,
+    importExternalTrain
 );
 
 module.exports = router;
