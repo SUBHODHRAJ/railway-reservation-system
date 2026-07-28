@@ -29,7 +29,7 @@ import PaymentFailed from "./pages/PaymentFailed";
 
 import MyBookings from "./pages/MyBookings";
 import BookingDetails from "./pages/BookingDetails";
-
+import NotFound from "./pages/NotFound";
 import Dashboard from "./admin/Dashboard";
 import AdminUsers from "./admin/Users";
 import AdminTrains from "./admin/Trains";
@@ -234,12 +234,7 @@ function App() {
 
                 <Route
                     path="*"
-                    element={
-                        <Navigate
-                            to="/"
-                            replace
-                        />
-                    }
+                    element={<NotFound />}
                 />
             </Routes>
         </BrowserRouter>

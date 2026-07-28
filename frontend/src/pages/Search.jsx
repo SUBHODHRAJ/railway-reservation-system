@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -26,6 +26,7 @@ function Search() {
     const [error, setError] = useState("");
 
     const today = new Date();
+
     const minDate = [
         today.getFullYear(),
         String(today.getMonth() + 1).padStart(2, "0"),
@@ -36,11 +37,16 @@ function Search() {
         const loadStations = async () => {
             try {
                 const response = await getStations();
-                setStations(response.data);
+
+                setStations(
+                    Array.isArray(response.data)
+                        ? response.data
+                        : []
+                );
             } catch (error) {
                 setError(
                     error.response?.data?.message ||
-                    "Unable to load stations"
+                    "Unable to load stations."
                 );
             } finally {
                 setLoadingStations(false);
@@ -50,17 +56,34 @@ function Search() {
         loadStations();
     }, []);
 
+    const stationMap = useMemo(() => {
+        return stations.reduce(
+            (result, station) => {
+                result[station.station_code] =
+                    station;
+
+                return result;
+            },
+            {}
+        );
+    }, [stations]);
+
+    const sourceStation =
+        stationMap[form.source];
+
+    const destinationStation =
+        stationMap[form.destination];
+
     const handleChange = event => {
-        const { name, value } = event.target;
+        const { name, value } =
+            event.target;
 
         setForm(previous => ({
             ...previous,
             [name]: value
         }));
 
-        if (error) {
-            setError("");
-        }
+        setError("");
     };
 
     const handleSwap = () => {
@@ -70,24 +93,42 @@ function Search() {
             destination: previous.source
         }));
 
-        if (error) {
-            setError("");
-        }
+        setError("");
     };
 
     const handleSubmit = async event => {
         event.preventDefault();
 
-        setError("");
-
-        if (!form.source || !form.destination || !form.date) {
-            setError("Select your route and journey date.");
+        if (searching) {
             return;
         }
 
-        if (form.source === form.destination) {
+        setError("");
+
+        if (
+            !form.source ||
+            !form.destination ||
+            !form.date
+        ) {
+            setError(
+                "Select your route and journey date."
+            );
+            return;
+        }
+
+        if (
+            form.source ===
+            form.destination
+        ) {
             setError(
                 "Source and destination must be different stations."
+            );
+            return;
+        }
+
+        if (form.date < minDate) {
+            setError(
+                "Journey date cannot be in the past."
             );
             return;
         }
@@ -95,18 +136,23 @@ function Search() {
         setSearching(true);
 
         try {
-            const response = await searchTrains(form);
+            const response =
+                await searchTrains(form);
 
             navigate("/search-results", {
                 state: {
                     search: form,
-                    trains: response.data
+                    trains: Array.isArray(
+                        response.data
+                    )
+                        ? response.data
+                        : []
                 }
             });
         } catch (error) {
             setError(
                 error.response?.data?.message ||
-                "Unable to search trains"
+                "Unable to search trains."
             );
         } finally {
             setSearching(false);
@@ -120,24 +166,36 @@ function Search() {
                     RAILWAY RESERVATION
                 </p>
 
-                <h1>Where would you like to go?</h1>
+                <h1>
+                    Where would you like to go?
+                </h1>
 
                 <p>
-                    Search scheduled trains and start your
-                    journey in a few simple steps.
+                    Search scheduled trains, compare
+                    availability and reserve your journey.
                 </p>
             </section>
 
             <section className="content-card search-card">
-                <div className="search-card-heading">
+                <header className="search-card-heading">
                     <div>
                         <h2>Search trains</h2>
 
                         <p className="muted">
-                            Choose your stations and journey date.
+                            Choose your departure,
+                            destination and journey date.
                         </p>
                     </div>
-                </div>
+
+                    {!loadingStations && (
+                        <span className="search-station-count">
+                            {stations.length}{" "}
+                            {stations.length === 1
+                                ? "station"
+                                : "stations"}
+                        </span>
+                    )}
+                </header>
 
                 <form
                     className="search-form"
@@ -154,7 +212,8 @@ function Search() {
                             value={form.source}
                             onChange={handleChange}
                             disabled={
-                                loadingStations || searching
+                                loadingStations ||
+                                searching
                             }
                             required
                         >
@@ -164,17 +223,36 @@ function Search() {
                                     : "Select departure station"}
                             </option>
 
-                            {stations.map(station => (
-                                <option
-                                    key={station.id}
-                                    value={station.station_code}
-                                >
-                                    {station.station_code}
-                                    {" — "}
-                                    {station.station_name}
-                                </option>
-                            ))}
+                            {stations.map(
+                                station => (
+                                    <option
+                                        key={
+                                            station.id
+                                        }
+                                        value={
+                                            station.station_code
+                                        }
+                                    >
+                                        {
+                                            station.station_code
+                                        }
+                                        {" — "}
+                                        {
+                                            station.station_name
+                                        }
+                                    </option>
+                                )
+                            )}
                         </select>
+
+                        {sourceStation && (
+                            <span className="search-field-detail">
+                                {sourceStation.station_name}
+                                {sourceStation.city
+                                    ? ` • ${sourceStation.city}`
+                                    : ""}
+                            </span>
+                        )}
                     </div>
 
                     <div className="swap-control">
@@ -190,7 +268,10 @@ function Search() {
                             className="swap-button"
                             onClick={handleSwap}
                             disabled={
-                                loadingStations || searching
+                                loadingStations ||
+                                searching ||
+                                (!form.source &&
+                                    !form.destination)
                             }
                             aria-label="Swap departure and destination stations"
                             title="Swap stations"
@@ -207,10 +288,13 @@ function Search() {
                         <select
                             id="destination"
                             name="destination"
-                            value={form.destination}
+                            value={
+                                form.destination
+                            }
                             onChange={handleChange}
                             disabled={
-                                loadingStations || searching
+                                loadingStations ||
+                                searching
                             }
                             required
                         >
@@ -220,17 +304,38 @@ function Search() {
                                     : "Select arrival station"}
                             </option>
 
-                            {stations.map(station => (
-                                <option
-                                    key={station.id}
-                                    value={station.station_code}
-                                >
-                                    {station.station_code}
-                                    {" — "}
-                                    {station.station_name}
-                                </option>
-                            ))}
+                            {stations.map(
+                                station => (
+                                    <option
+                                        key={
+                                            station.id
+                                        }
+                                        value={
+                                            station.station_code
+                                        }
+                                    >
+                                        {
+                                            station.station_code
+                                        }
+                                        {" — "}
+                                        {
+                                            station.station_name
+                                        }
+                                    </option>
+                                )
+                            )}
                         </select>
+
+                        {destinationStation && (
+                            <span className="search-field-detail">
+                                {
+                                    destinationStation.station_name
+                                }
+                                {destinationStation.city
+                                    ? ` • ${destinationStation.city}`
+                                    : ""}
+                            </span>
+                        )}
                     </div>
 
                     <div className="form-group date-field">
@@ -248,6 +353,10 @@ function Search() {
                             disabled={searching}
                             required
                         />
+
+                        <span className="search-field-detail">
+                            Select your travel date
+                        </span>
                     </div>
 
                     <div className="search-action">
@@ -274,6 +383,53 @@ function Search() {
                         {error}
                     </div>
                 )}
+            </section>
+
+            <section className="search-benefits">
+                <article>
+                    <span>01</span>
+
+                    <div>
+                        <strong>
+                            Find your journey
+                        </strong>
+
+                        <p>
+                            Search available scheduled
+                            services by route and date.
+                        </p>
+                    </div>
+                </article>
+
+                <article>
+                    <span>02</span>
+
+                    <div>
+                        <strong>
+                            Choose your seat
+                        </strong>
+
+                        <p>
+                            Review class availability and
+                            select available seats.
+                        </p>
+                    </div>
+                </article>
+
+                <article>
+                    <span>03</span>
+
+                    <div>
+                        <strong>
+                            Manage your booking
+                        </strong>
+
+                        <p>
+                            Access your PNR, ticket and
+                            reservation details anytime.
+                        </p>
+                    </div>
+                </article>
             </section>
         </main>
     );

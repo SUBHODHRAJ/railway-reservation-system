@@ -67,15 +67,25 @@ function Payment() {
     }, [booking]);
 
     if (!state || !booking?.bookingId) {
-        return <Navigate to="/my-bookings" replace />;
+        return (
+            <Navigate
+                to="/my-bookings"
+                replace
+            />
+        );
     }
 
     const amount = Number(
-        payment?.amount ?? booking.totalFare ?? 0
+        payment?.amount ??
+        booking.totalFare ??
+        0
     );
 
     const handlePayment = async success => {
-        if (!payment?.paymentId || processing) {
+        if (
+            !payment?.paymentId ||
+            processing
+        ) {
             return;
         }
 
@@ -83,17 +93,19 @@ function Payment() {
         setError("");
 
         try {
-            const response = await completePayment(
-                payment.paymentId,
-                success
-            );
+            const response =
+                await completePayment(
+                    payment.paymentId,
+                    success
+                );
 
             if (success) {
                 navigate("/confirmation", {
                     replace: true,
                     state: {
                         ...state,
-                        paymentResult: response.data
+                        paymentResult:
+                            response.data
                     }
                 });
 
@@ -104,7 +116,8 @@ function Payment() {
                 replace: true,
                 state: {
                     booking,
-                    paymentResult: response.data
+                    paymentResult:
+                        response.data
                 }
             });
         } catch (error) {
@@ -125,92 +138,154 @@ function Payment() {
                     aria-hidden="true"
                 />
 
-                <p>Preparing secure payment...</p>
+                <p>
+                    Preparing secure payment...
+                </p>
             </main>
         );
     }
 
     return (
-        <main className="page-container payment-page">
-            <section className="hero-section payment-hero">
-                <p className="eyebrow">
-                    PAYMENT
-                </p>
+        <main className="page-container transaction-page">
+            <section className="transaction-heading">
+                <div>
+                    <p className="eyebrow">
+                        PAYMENT
+                    </p>
 
-                <h1>Complete your booking</h1>
+                    <h1>
+                        Complete your booking
+                    </h1>
 
-                <p>
-                    Review the payment details and confirm
-                    your reservation.
-                </p>
+                    <p>
+                        Confirm the reservation details
+                        before completing the simulated
+                        payment.
+                    </p>
+                </div>
+
+                <div className="transaction-step">
+                    <span>Final step</span>
+                    <strong>Payment</strong>
+                </div>
             </section>
 
-            <section className="payment-layout">
-                <div className="content-card payment-card">
-                    <div className="payment-card-header">
+            <section className="transaction-layout">
+                <article className="transaction-card payment-modern-card">
+                    <header className="transaction-card-header">
                         <div>
-                            <h2>Payment details</h2>
+                            <span className="transaction-label">
+                                RESERVATION
+                            </span>
 
-                            <p className="muted">
-                                Reservation #{booking.bookingId}
+                            <h2>
+                                Payment details
+                            </h2>
+
+                            <p>
+                                Booking #
+                                {booking.bookingId}
                             </p>
                         </div>
 
-                        <span className="payment-status-badge">
+                        <span className="transaction-ready-badge">
                             Ready
                         </span>
-                    </div>
+                    </header>
 
-                    <div className="payment-notice">
-                        <strong>Simulation mode</strong>
-
-                        <span>
-                            No real payment will be charged.
-                        </span>
-                    </div>
-
-                    <div className="payment-details-list">
-                        <div className="review-row">
-                            <span>PNR</span>
-                            <strong>{booking.pnr}</strong>
+                    <div className="simulation-notice">
+                        <div
+                            className="simulation-mark"
+                            aria-hidden="true"
+                        >
+                            i
                         </div>
 
-                        <div className="review-row">
+                        <div>
+                            <strong>
+                                Simulation mode
+                            </strong>
+
+                            <span>
+                                This is a development
+                                payment. No real money
+                                will be charged.
+                            </span>
+                        </div>
+                    </div>
+
+                    <section className="payment-reference-grid">
+                        <div>
+                            <span>PNR</span>
+
+                            <strong>
+                                {booking.pnr}
+                            </strong>
+                        </div>
+
+                        <div>
                             <span>Booking ID</span>
+
                             <strong>
                                 #{booking.bookingId}
                             </strong>
                         </div>
 
-                        <div className="review-row">
+                        <div>
                             <span>Payment ID</span>
+
                             <strong>
-                                {payment?.paymentId || "—"}
+                                {payment?.paymentId ||
+                                    "—"}
                             </strong>
                         </div>
 
-                        <div className="review-row payment-amount-row">
-                            <span>Amount payable</span>
+                        <div>
+                            <span>Currency</span>
 
-                            <strong className="payment-total">
-                                ₹{amount.toFixed(2)}
+                            <strong>
+                                {payment?.currency ||
+                                    "INR"}
                             </strong>
                         </div>
-                    </div>
+                    </section>
+
+                    <section className="payment-payable">
+                        <div>
+                            <span>
+                                AMOUNT PAYABLE
+                            </span>
+
+                            <p>
+                                Total reservation amount
+                            </p>
+                        </div>
+
+                        <strong>
+                            ₹
+                            {amount.toLocaleString(
+                                "en-IN",
+                                {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }
+                            )}
+                        </strong>
+                    </section>
 
                     {error && (
                         <div
-                            className="form-error top-space"
+                            className="form-error transaction-error"
                             role="alert"
                         >
                             {error}
                         </div>
                     )}
 
-                    <div className="payment-actions">
+                    <div className="payment-modern-actions">
                         <button
                             type="button"
-                            className="primary-button"
+                            className="primary-button payment-confirm-button"
                             disabled={
                                 processing ||
                                 !payment?.paymentId
@@ -221,7 +296,13 @@ function Payment() {
                         >
                             {processing
                                 ? "Processing payment..."
-                                : `Pay ₹${amount.toFixed(2)}`}
+                                : `Pay ₹${amount.toLocaleString(
+                                      "en-IN",
+                                      {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2
+                                      }
+                                  )}`}
                         </button>
 
                         <button
@@ -239,11 +320,56 @@ function Payment() {
                         </button>
                     </div>
 
-                    <p className="payment-helper">
-                        This payment screen is currently
-                        configured for development testing.
+                    <p className="transaction-helper">
+                        Selecting the failure option is
+                        provided only for testing the
+                        unsuccessful-payment flow.
                     </p>
-                </div>
+                </article>
+
+                <aside className="payment-side-summary">
+                    <span className="transaction-label">
+                        BOOKING SUMMARY
+                    </span>
+
+                    <h3>
+                        Reservation ready
+                    </h3>
+
+                    <p>
+                        Your booking has been created and
+                        is waiting for payment completion.
+                    </p>
+
+                    <div className="payment-side-divider" />
+
+                    <div className="payment-side-row">
+                        <span>PNR</span>
+                        <strong>{booking.pnr}</strong>
+                    </div>
+
+                    <div className="payment-side-row">
+                        <span>Status</span>
+                        <strong>Awaiting payment</strong>
+                    </div>
+
+                    <div className="payment-side-divider" />
+
+                    <div className="payment-side-total">
+                        <span>Total</span>
+
+                        <strong>
+                            ₹
+                            {amount.toLocaleString(
+                                "en-IN",
+                                {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }
+                            )}
+                        </strong>
+                    </div>
+                </aside>
             </section>
         </main>
     );
