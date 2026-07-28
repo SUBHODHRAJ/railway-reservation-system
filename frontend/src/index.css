@@ -8986,3 +8986,362 @@ table {
         border-left: 0;
     }
 }
+
+/* =========================================================
+   Advanced Seat Selection
+   ========================================================= */
+
+.seat-availability-overview {
+    margin: 0 0 18px;
+
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    overflow: hidden;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+
+    background: #ffffff;
+}
+
+.seat-availability-overview > div {
+    padding: 13px 16px;
+}
+
+.seat-availability-overview > div + div {
+    border-left: 1px solid #e2e8f0;
+}
+
+.seat-availability-overview span {
+    display: block;
+    margin-bottom: 3px;
+
+    color: #64748b;
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.seat-availability-overview strong {
+    color: #0f172a;
+    font-size: 14px;
+}
+
+.seat-toolbar {
+    margin: 16px 0 18px;
+    padding: 13px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+
+    background: #f8fafc;
+}
+
+.seat-toolbar-heading {
+    margin-bottom: 11px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.seat-toolbar-heading > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.seat-toolbar-heading span {
+    color: #64748b;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.45px;
+}
+
+.seat-toolbar-heading strong {
+    color: #0f172a;
+    font-size: 10px;
+}
+
+.seat-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.seat-clear-button {
+    padding: 7px 9px;
+
+    border: 0;
+    background: transparent;
+
+    color: #64748b;
+    font-size: 8px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.seat-clear-button:hover:not(:disabled) {
+    color: #b91c1c;
+}
+
+.seat-clear-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.berth-filters {
+    display: flex;
+    gap: 7px;
+
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+
+.berth-filter {
+    min-width: 105px;
+    padding: 8px 10px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    border: 1px solid #dbe3ee;
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    text-align: left;
+    cursor: pointer;
+
+    transition:
+        border-color 150ms ease,
+        background 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.berth-filter:hover {
+    border-color: #93c5fd;
+}
+
+.berth-filter strong {
+    color: #334155;
+    font-size: 8px;
+    white-space: nowrap;
+}
+
+.berth-filter span {
+    color: #64748b;
+    font-size: 7px;
+    white-space: nowrap;
+}
+
+.berth-filter-active {
+    border-color: #2563eb;
+    background: #eff6ff;
+
+    box-shadow:
+        0 0 0 1px rgba(37, 99, 235, 0.08);
+}
+
+.berth-filter-active strong {
+    color: #1d4ed8;
+}
+
+.coach-tab small {
+    color: #2563eb;
+    font-size: 7px;
+    font-weight: 700;
+}
+
+.seat-berth-name {
+    display: block;
+    margin-top: 2px;
+
+    font-size: 6px;
+    line-height: 1.2;
+}
+
+.seat-available .seat-berth-name {
+    color: #64748b;
+}
+
+.seat-selected .seat-berth-name {
+    color: inherit;
+    opacity: 0.8;
+}
+
+.seat-unavailable .seat-berth-name {
+    color: #94a3b8;
+}
+
+.seat-filter-empty {
+    padding: 32px 20px;
+
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+
+    background: #f8fafc;
+
+    text-align: center;
+}
+
+.seat-filter-empty strong {
+    display: block;
+
+    color: #334155;
+    font-size: 10px;
+}
+
+.seat-filter-empty p {
+    max-width: 300px;
+    margin: 5px auto 0;
+
+    color: #64748b;
+    font-size: 8px;
+    line-height: 1.55;
+}
+
+.selected-seat-empty {
+    margin-top: 7px;
+    padding: 10px;
+
+    border: 1px dashed #cbd5e1;
+    border-radius: 7px;
+
+    background: #f8fafc;
+}
+
+.selected-seat-empty strong {
+    display: block;
+
+    color: #475569;
+    font-size: 8px;
+}
+
+.selected-seat-empty p {
+    margin: 3px 0 0;
+
+    color: #94a3b8;
+    font-size: 7px;
+    line-height: 1.5;
+}
+
+.selected-seat-details {
+    margin-top: 7px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.selected-seat-details article {
+    padding: 8px 8px 8px 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+
+    background: #f8fafc;
+}
+
+.selected-seat-details article > div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.selected-seat-details strong {
+    color: #0f172a;
+    font-size: 8px;
+}
+
+.selected-seat-details span {
+    color: #64748b;
+    font-size: 7px;
+}
+
+.selected-seat-details button {
+    width: 24px;
+    height: 24px;
+
+    flex: 0 0 auto;
+
+    border: 0;
+    border-radius: 5px;
+
+    background: transparent;
+    color: #94a3b8;
+
+    cursor: pointer;
+}
+
+.selected-seat-details button:hover:not(:disabled) {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.selected-seat-details button:disabled {
+    cursor: not-allowed;
+}
+
+.seat-summary-total > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.seat-summary-total small {
+    color: #94a3b8;
+    font-size: 7px;
+}
+
+@media (max-width: 800px) {
+    .seat-availability-overview {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .seat-availability-overview > div:nth-child(3) {
+        border-left: 0;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .seat-availability-overview > div:nth-child(4) {
+        border-top: 1px solid #e2e8f0;
+    }
+}
+
+@media (max-width: 600px) {
+    .seat-toolbar-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .seat-toolbar-actions {
+        justify-content: space-between;
+    }
+
+    .seat-toolbar-actions .secondary-action-button {
+        flex: 1;
+    }
+}
+
+@media (max-width: 440px) {
+    .seat-availability-overview {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .seat-availability-overview > div {
+        padding: 11px 12px;
+    }
+}

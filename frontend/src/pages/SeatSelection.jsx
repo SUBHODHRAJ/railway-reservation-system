@@ -14,6 +14,22 @@ import {
 import { getSeats } from "../api/trainApi";
 import { holdSeats } from "../api/bookingApi";
 
+const BERTH_INFO = {
+    LB: "Lower Berth",
+    MB: "Middle Berth",
+    UB: "Upper Berth",
+    SL: "Side Lower",
+    SU: "Side Upper"
+};
+
+const BERTH_ORDER = [
+    "LB",
+    "MB",
+    "UB",
+    "SL",
+    "SU"
+];
+
 function SeatSelection() {
     const { journeyId } = useParams();
     const location = useLocation();
@@ -26,11 +42,17 @@ function SeatSelection() {
         fare
     } = location.state || {};
 
-    const [seats, setSeats] = useState([]);
-    const [selected, setSelected] = useState([]);
+    const [seats, setSeats] =
+        useState([]);
+
+    const [selected, setSelected] =
+        useState([]);
 
     const [activeCoach, setActiveCoach] =
         useState("");
+
+    const [berthFilter, setBerthFilter] =
+        useState("ALL");
 
     const [loading, setLoading] =
         useState(true);
@@ -46,7 +68,12 @@ function SeatSelection() {
             return;
         }
 
+        let active = true;
+
         const loadSeats = async () => {
+            setLoading(true);
+            setError("");
+
             try {
                 const response =
                     await getSeats(
@@ -54,45 +81,121 @@ function SeatSelection() {
                         classType
                     );
 
-                setSeats(response.data);
+                if (!active) {
+                    return;
+                }
+
+                setSeats(
+                    Array.isArray(
+                        response.data
+                    )
+                        ? response.data
+                        : []
+                );
             } catch (error) {
+                if (!active) {
+                    return;
+                }
+
                 setError(
-                    error.response?.data?.message ||
-                    "Unable to load seats"
+                    error.response?.data
+                        ?.message ||
+                        "Unable to load seats."
                 );
             } finally {
-                setLoading(false);
+                if (active) {
+                    setLoading(false);
+                }
             }
         };
 
         loadSeats();
+
+        return () => {
+            active = false;
+        };
     }, [journeyId, classType]);
 
     const coaches = useMemo(() => {
-        return seats.reduce((result, seat) => {
-            if (!result[seat.coach_number]) {
-                result[seat.coach_number] = [];
-            }
+        return seats.reduce(
+            (result, seat) => {
+                const coach =
+                    seat.coach_number;
 
-            result[seat.coach_number].push(seat);
+                if (!result[coach]) {
+                    result[coach] = [];
+                }
 
-            return result;
-        }, {});
+                result[coach].push(
+                    seat
+                );
+
+                return result;
+            },
+            {}
+        );
     }, [seats]);
 
     const coachNames = useMemo(
-        () => Object.keys(coaches),
+        () =>
+            Object.keys(coaches).sort(
+                (a, b) =>
+                    a.localeCompare(
+                        b,
+                        undefined,
+                        {
+                            numeric: true
+                        }
+                    )
+            ),
         [coaches]
     );
 
     useEffect(() => {
         if (
             coachNames.length > 0 &&
-            !coachNames.includes(activeCoach)
+            !coachNames.includes(
+                activeCoach
+            )
         ) {
-            setActiveCoach(coachNames[0]);
+            setActiveCoach(
+                coachNames[0]
+            );
         }
-    }, [coachNames, activeCoach]);
+    }, [
+        coachNames,
+        activeCoach
+    ]);
+
+    const availableBerths =
+        useMemo(() => {
+            const types =
+                new Set(
+                    seats.map(
+                        seat =>
+                            seat.berth_type
+                    )
+                );
+
+            return BERTH_ORDER.filter(
+                type =>
+                    types.has(type)
+            );
+        }, [seats]);
+
+    useEffect(() => {
+        if (
+            berthFilter !== "ALL" &&
+            !availableBerths.includes(
+                berthFilter
+            )
+        ) {
+            setBerthFilter("ALL");
+        }
+    }, [
+        berthFilter,
+        availableBerths
+    ]);
 
     if (
         !search ||
@@ -100,11 +203,90 @@ function SeatSelection() {
         !classType ||
         !fare
     ) {
-        return <Navigate to="/search" replace />;
+        return (
+            <Navigate
+                to="/search"
+                replace
+            />
+        );
     }
 
+    const activeSeats =
+        coaches[activeCoach] || [];
+
+    const filteredSeats =
+        berthFilter === "ALL"
+            ? activeSeats
+            : activeSeats.filter(
+                  seat =>
+                      seat.berth_type ===
+                      berthFilter
+              );
+
+    const selectedSeats =
+        seats.filter(seat =>
+            selected.includes(
+                seat.seat_id
+            )
+        );
+
+    const overallAvailable =
+        seats.filter(
+            seat =>
+                seat.status ===
+                "AVAILABLE"
+        ).length;
+
+    const activeCoachAvailable =
+        activeSeats.filter(
+            seat =>
+                seat.status ===
+                "AVAILABLE"
+        ).length;
+
+    const totalFare =
+        Number(fare.amount) *
+        selected.length;
+
+    const berthStats =
+        availableBerths.reduce(
+            (result, type) => {
+                const matching =
+                    seats.filter(
+                        seat =>
+                            seat.berth_type ===
+                            type
+                    );
+
+                result[type] = {
+                    total:
+                        matching.length,
+                    available:
+                        matching.filter(
+                            seat =>
+                                seat.status ===
+                                "AVAILABLE"
+                        ).length,
+                    selected:
+                        matching.filter(
+                            seat =>
+                                selected.includes(
+                                    seat.seat_id
+                                )
+                        ).length
+                };
+
+                return result;
+            },
+            {}
+        );
+
     const toggleSeat = seat => {
-        if (seat.status !== "AVAILABLE") {
+        if (
+            seat.status !==
+                "AVAILABLE" ||
+            holding
+        ) {
             return;
         }
 
@@ -112,10 +294,14 @@ function SeatSelection() {
 
         setSelected(previous => {
             if (
-                previous.includes(seat.seat_id)
+                previous.includes(
+                    seat.seat_id
+                )
             ) {
                 return previous.filter(
-                    id => id !== seat.seat_id
+                    id =>
+                        id !==
+                        seat.seat_id
                 );
             }
 
@@ -126,8 +312,73 @@ function SeatSelection() {
         });
     };
 
+    const handleAutoSelect = () => {
+        if (holding) {
+            return;
+        }
+
+        setError("");
+
+        const preferredSeats =
+            seats.filter(
+                seat =>
+                    seat.status ===
+                        "AVAILABLE" &&
+                    !selected.includes(
+                        seat.seat_id
+                    ) &&
+                    (berthFilter ===
+                        "ALL" ||
+                        seat.berth_type ===
+                            berthFilter)
+            );
+
+        if (
+            preferredSeats.length === 0
+        ) {
+            setError(
+                berthFilter === "ALL"
+                    ? "No more available seats can be selected."
+                    : `No more available ${BERTH_INFO[berthFilter]} seats.`
+            );
+
+            return;
+        }
+
+        const sameCoachSeat =
+            preferredSeats.find(
+                seat =>
+                    seat.coach_number ===
+                    activeCoach
+            );
+
+        const nextSeat =
+            sameCoachSeat ||
+            preferredSeats[0];
+
+        setSelected(previous => [
+            ...previous,
+            nextSeat.seat_id
+        ]);
+
+        setActiveCoach(
+            nextSeat.coach_number
+        );
+    };
+
+    const handleClearSelection = () => {
+        if (holding) {
+            return;
+        }
+
+        setSelected([]);
+        setError("");
+    };
+
     const handleContinue = async () => {
-        if (selected.length === 0) {
+        if (
+            selected.length === 0
+        ) {
             setError(
                 "Select at least one available seat."
             );
@@ -138,32 +389,42 @@ function SeatSelection() {
         setHolding(true);
 
         try {
-            const response = await holdSeats({
-                journeyId: Number(journeyId),
-                seatIds: selected
-            });
+            const response =
+                await holdSeats({
+                    journeyId:
+                        Number(
+                            journeyId
+                        ),
+                    seatIds: selected
+                });
 
-            const selectedSeats =
+            const seatsToBook =
                 seats.filter(seat =>
                     selected.includes(
                         seat.seat_id
                     )
                 );
 
-            navigate("/passengers", {
-                state: {
-                    search,
-                    journey,
-                    classType,
-                    fare,
-                    seats: selectedSeats,
-                    hold: response.data
+            navigate(
+                "/passengers",
+                {
+                    state: {
+                        search,
+                        journey,
+                        classType,
+                        fare,
+                        seats:
+                            seatsToBook,
+                        hold:
+                            response.data
+                    }
                 }
-            });
+            );
         } catch (error) {
             setError(
-                error.response?.data?.message ||
-                "Unable to hold selected seats"
+                error.response?.data
+                    ?.message ||
+                    "Unable to hold selected seats."
             );
 
             try {
@@ -173,10 +434,17 @@ function SeatSelection() {
                         classType
                     );
 
-                setSeats(response.data);
+                setSeats(
+                    Array.isArray(
+                        response.data
+                    )
+                        ? response.data
+                        : []
+                );
+
                 setSelected([]);
             } catch {
-                // Preserve the original hold error.
+                // Preserve original hold error.
             }
         } finally {
             setHolding(false);
@@ -191,28 +459,13 @@ function SeatSelection() {
                     aria-hidden="true"
                 />
 
-                <p>Loading seats...</p>
+                <p>
+                    Loading seat
+                    availability...
+                </p>
             </main>
         );
     }
-
-    const activeSeats =
-        coaches[activeCoach] || [];
-
-    const availableCount =
-        activeSeats.filter(
-            seat =>
-                seat.status === "AVAILABLE"
-        ).length;
-
-    const selectedSeats =
-        seats.filter(seat =>
-            selected.includes(seat.seat_id)
-        );
-
-    const totalFare =
-        Number(fare.amount) *
-        selected.length;
 
     return (
         <main className="page-container seat-selection-page">
@@ -224,30 +477,95 @@ function SeatSelection() {
                 <div className="seat-page-title">
                     <div>
                         <h1>
-                            {journey.train_number}
+                            {
+                                journey.train_number
+                            }
                             {" — "}
-                            {journey.train_name}
+                            {
+                                journey.train_name
+                            }
                         </h1>
 
                         <p>
                             {search.source}
                             {" → "}
-                            {search.destination}
+                            {
+                                search.destination
+                            }
                             {" • "}
                             {classType}
                         </p>
                     </div>
 
                     <div className="seat-fare-summary">
-                        <span>Fare per passenger</span>
+                        <span>
+                            Fare per
+                            passenger
+                        </span>
 
                         <strong>
                             ₹
                             {Number(
                                 fare.amount
-                            ).toFixed(2)}
+                            ).toLocaleString(
+                                "en-IN",
+                                {
+                                    minimumFractionDigits:
+                                        2,
+                                    maximumFractionDigits:
+                                        2
+                                }
+                            )}
                         </strong>
                     </div>
+                </div>
+            </section>
+
+            <section className="seat-availability-overview">
+                <div>
+                    <span>
+                        Coaches
+                    </span>
+
+                    <strong>
+                        {
+                            coachNames.length
+                        }
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Available
+                    </span>
+
+                    <strong>
+                        {
+                            overallAvailable
+                        }
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Selected
+                    </span>
+
+                    <strong>
+                        {
+                            selected.length
+                        }
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Travel class
+                    </span>
+
+                    <strong>
+                        {classType}
+                    </strong>
                 </div>
             </section>
 
@@ -256,11 +574,17 @@ function SeatSelection() {
                     <section className="content-card seat-picker-card">
                         <div className="seat-picker-header">
                             <div>
-                                <h2>Choose your seats</h2>
+                                <h2>
+                                    Choose your
+                                    seats
+                                </h2>
 
                                 <p className="muted">
-                                    Select one seat for each
-                                    passenger travelling.
+                                    Select seats
+                                    manually or use
+                                    auto select to
+                                    add the next
+                                    available seat.
                                 </p>
                             </div>
 
@@ -282,15 +606,148 @@ function SeatSelection() {
                             </div>
                         </div>
 
-                        {coachNames.length === 0 ? (
+                        <div className="seat-toolbar">
+                            <div className="seat-toolbar-heading">
+                                <div>
+                                    <span>
+                                        BERTH
+                                        PREFERENCE
+                                    </span>
+
+                                    <strong>
+                                        Filter
+                                        available
+                                        seats
+                                    </strong>
+                                </div>
+
+                                <div className="seat-toolbar-actions">
+                                    <button
+                                        type="button"
+                                        className="secondary-action-button"
+                                        onClick={
+                                            handleAutoSelect
+                                        }
+                                        disabled={
+                                            holding ||
+                                            overallAvailable ===
+                                                0
+                                        }
+                                    >
+                                        Auto select
+                                        1
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="seat-clear-button"
+                                        onClick={
+                                            handleClearSelection
+                                        }
+                                        disabled={
+                                            holding ||
+                                            selected.length ===
+                                                0
+                                        }
+                                    >
+                                        Clear
+                                        selection
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div
+                                className="berth-filters"
+                                aria-label="Berth preference"
+                            >
+                                <button
+                                    type="button"
+                                    className={`berth-filter ${
+                                        berthFilter ===
+                                        "ALL"
+                                            ? "berth-filter-active"
+                                            : ""
+                                    }`}
+                                    onClick={() =>
+                                        setBerthFilter(
+                                            "ALL"
+                                        )
+                                    }
+                                >
+                                    <strong>
+                                        All
+                                    </strong>
+
+                                    <span>
+                                        {
+                                            overallAvailable
+                                        }{" "}
+                                        available
+                                    </span>
+                                </button>
+
+                                {availableBerths.map(
+                                    type => {
+                                        const stats =
+                                            berthStats[
+                                                type
+                                            ];
+
+                                        return (
+                                            <button
+                                                type="button"
+                                                key={
+                                                    type
+                                                }
+                                                className={`berth-filter ${
+                                                    berthFilter ===
+                                                    type
+                                                        ? "berth-filter-active"
+                                                        : ""
+                                                }`}
+                                                onClick={() =>
+                                                    setBerthFilter(
+                                                        type
+                                                    )
+                                                }
+                                            >
+                                                <strong>
+                                                    {
+                                                        BERTH_INFO[
+                                                            type
+                                                        ]
+                                                    }
+                                                </strong>
+
+                                                <span>
+                                                    {
+                                                        stats.available
+                                                    }{" "}
+                                                    available
+                                                    {stats.selected >
+                                                    0
+                                                        ? ` • ${stats.selected} selected`
+                                                        : ""}
+                                                </span>
+                                            </button>
+                                        );
+                                    }
+                                )}
+                            </div>
+                        </div>
+
+                        {coachNames.length ===
+                        0 ? (
                             <div className="seat-empty-state">
                                 <strong>
-                                    No seats available
+                                    No seats to
+                                    display
                                 </strong>
 
                                 <span>
-                                    There are no seats to
-                                    display for this class.
+                                    Seat inventory
+                                    is unavailable
+                                    for this class.
                                 </span>
                             </div>
                         ) : (
@@ -300,59 +757,77 @@ function SeatSelection() {
                                     role="tablist"
                                     aria-label="Select coach"
                                 >
-                                    {coachNames.map(coach => {
-                                        const coachSeats =
-                                            coaches[coach];
-
-                                        const available =
-                                            coachSeats.filter(
-                                                seat =>
-                                                    seat.status ===
-                                                    "AVAILABLE"
-                                            ).length;
-
-                                        const selectedInCoach =
-                                            coachSeats.filter(
-                                                seat =>
-                                                    selected.includes(
-                                                        seat.seat_id
-                                                    )
-                                            ).length;
-
-                                        return (
-                                            <button
-                                                type="button"
-                                                role="tab"
-                                                aria-selected={
-                                                    activeCoach ===
+                                    {coachNames.map(
+                                        coach => {
+                                            const coachSeats =
+                                                coaches[
                                                     coach
-                                                }
-                                                className={`coach-tab ${
-                                                    activeCoach ===
-                                                    coach
-                                                        ? "coach-tab-active"
-                                                        : ""
-                                                }`}
-                                                key={coach}
-                                                onClick={() =>
-                                                    setActiveCoach(
+                                                ];
+
+                                            const available =
+                                                coachSeats.filter(
+                                                    seat =>
+                                                        seat.status ===
+                                                        "AVAILABLE"
+                                                ).length;
+
+                                            const selectedInCoach =
+                                                coachSeats.filter(
+                                                    seat =>
+                                                        selected.includes(
+                                                            seat.seat_id
+                                                        )
+                                                ).length;
+
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    role="tab"
+                                                    aria-selected={
+                                                        activeCoach ===
                                                         coach
-                                                    )
-                                                }
-                                            >
-                                                <strong>
-                                                    {coach}
-                                                </strong>
+                                                    }
+                                                    className={`coach-tab ${
+                                                        activeCoach ===
+                                                        coach
+                                                            ? "coach-tab-active"
+                                                            : ""
+                                                    }`}
+                                                    key={
+                                                        coach
+                                                    }
+                                                    onClick={() =>
+                                                        setActiveCoach(
+                                                            coach
+                                                        )
+                                                    }
+                                                >
+                                                    <strong>
+                                                        {
+                                                            coach
+                                                        }
+                                                    </strong>
 
-                                                <span>
+                                                    <span>
+                                                        {
+                                                            available
+                                                        }{" "}
+                                                        available
+                                                    </span>
+
                                                     {selectedInCoach >
-                                                    0
-                                                        ? `${selectedInCoach} selected`
-                                                        : `${available} available`}
-                                                </span>
-                                            </button>
-                                        );
-                                    })}
+                                                        0 && (
+                                                        <small>
+                                                            {
+                                                                selectedInCoach
+                                                            }{" "}
+                                                            selected
+                                                        </small>
+                                                    )}
+                                                </button>
+                                            );
+                                        }
+                                    )}
                                 </div>
 
                                 <div className="coach-panel">
@@ -363,90 +838,137 @@ function SeatSelection() {
                                             </span>
 
                                             <h2>
-                                                {activeCoach}
+                                                {
+                                                    activeCoach
+                                                }
                                             </h2>
                                         </div>
 
                                         <div className="coach-availability">
                                             <strong>
-                                                {availableCount}
+                                                {
+                                                    activeCoachAvailable
+                                                }
                                             </strong>
 
                                             <span>
-                                                seats available
+                                                seats
+                                                available
                                             </span>
                                         </div>
                                     </div>
 
                                     <div className="coach-direction">
-                                        <span>Coach layout</span>
+                                        <span>
+                                            {berthFilter ===
+                                            "ALL"
+                                                ? "All berth types"
+                                                : BERTH_INFO[
+                                                      berthFilter
+                                                  ]}
+                                        </span>
 
                                         <span>
-                                            Travel direction →
+                                            Travel
+                                            direction
+                                            →
                                         </span>
                                     </div>
 
-                                    <div className="seat-grid">
-                                        {activeSeats.map(
-                                            seat => {
-                                                const isSelected =
-                                                    selected.includes(
-                                                        seat.seat_id
-                                                    );
+                                    {filteredSeats.length ===
+                                    0 ? (
+                                        <div className="seat-filter-empty">
+                                            <strong>
+                                                No{" "}
+                                                {BERTH_INFO[
+                                                    berthFilter
+                                                ] ||
+                                                    ""}{" "}
+                                                seats in
+                                                this
+                                                coach
+                                            </strong>
 
-                                                const unavailable =
-                                                    seat.status !==
-                                                    "AVAILABLE";
-
-                                                return (
-                                                    <button
-                                                        type="button"
-                                                        key={
+                                            <p>
+                                                Try
+                                                another
+                                                coach or
+                                                select a
+                                                different
+                                                berth
+                                                preference.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="seat-grid">
+                                            {filteredSeats.map(
+                                                seat => {
+                                                    const isSelected =
+                                                        selected.includes(
                                                             seat.seat_id
-                                                        }
-                                                        disabled={
-                                                            unavailable ||
-                                                            holding
-                                                        }
-                                                        aria-pressed={
-                                                            isSelected
-                                                        }
-                                                        aria-label={`Seat ${seat.seat_number}, ${seat.berth_type}, ${
-                                                            unavailable
-                                                                ? "unavailable"
-                                                                : isSelected
-                                                                ? "selected"
-                                                                : "available"
-                                                        }`}
-                                                        onClick={() =>
-                                                            toggleSeat(
-                                                                seat
-                                                            )
-                                                        }
-                                                        className={`seat ${
-                                                            isSelected
-                                                                ? "seat-selected"
-                                                                : unavailable
-                                                                ? "seat-unavailable"
-                                                                : "seat-available"
-                                                        }`}
-                                                    >
-                                                        <strong>
-                                                            {
-                                                                seat.seat_number
-                                                            }
-                                                        </strong>
+                                                        );
 
-                                                        <small>
-                                                            {
-                                                                seat.berth_type
+                                                    const unavailable =
+                                                        seat.status !==
+                                                        "AVAILABLE";
+
+                                                    return (
+                                                        <button
+                                                            type="button"
+                                                            key={
+                                                                seat.seat_id
                                                             }
-                                                        </small>
-                                                    </button>
-                                                );
-                                            }
-                                        )}
-                                    </div>
+                                                            disabled={
+                                                                unavailable ||
+                                                                holding
+                                                            }
+                                                            aria-pressed={
+                                                                isSelected
+                                                            }
+                                                            aria-label={`Seat ${seat.seat_number}, ${BERTH_INFO[seat.berth_type] || seat.berth_type}, ${
+                                                                unavailable
+                                                                    ? "unavailable"
+                                                                    : isSelected
+                                                                      ? "selected"
+                                                                      : "available"
+                                                            }`}
+                                                            onClick={() =>
+                                                                toggleSeat(
+                                                                    seat
+                                                                )
+                                                            }
+                                                            className={`seat ${
+                                                                isSelected
+                                                                    ? "seat-selected"
+                                                                    : unavailable
+                                                                      ? "seat-unavailable"
+                                                                      : "seat-available"
+                                                            }`}
+                                                        >
+                                                            <strong>
+                                                                {
+                                                                    seat.seat_number
+                                                                }
+                                                            </strong>
+
+                                                            <small>
+                                                                {
+                                                                    seat.berth_type
+                                                                }
+                                                            </small>
+
+                                                            <span className="seat-berth-name">
+                                                                {BERTH_INFO[
+                                                                    seat.berth_type
+                                                                ] ||
+                                                                    seat.berth_type}
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                }
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -455,12 +977,16 @@ function SeatSelection() {
 
                 <aside className="seat-booking-summary">
                     <div className="seat-summary-header">
-                        <span>BOOKING SUMMARY</span>
+                        <span>
+                            BOOKING SUMMARY
+                        </span>
 
                         <h2>
-                            {selected.length}
-                            {" "}
-                            {selected.length === 1
+                            {
+                                selected.length
+                            }{" "}
+                            {selected.length ===
+                            1
                                 ? "seat"
                                 : "seats"}{" "}
                             selected
@@ -469,72 +995,117 @@ function SeatSelection() {
 
                     <div className="seat-summary-route">
                         <strong>
-                            {search.source}
+                            {
+                                search.source
+                            }
                         </strong>
 
                         <span>→</span>
 
                         <strong>
-                            {search.destination}
+                            {
+                                search.destination
+                            }
                         </strong>
                     </div>
 
                     <div className="seat-summary-details">
                         <div>
-                            <span>Class</span>
+                            <span>
+                                Class
+                            </span>
+
                             <strong>
                                 {classType}
                             </strong>
                         </div>
 
                         <div>
-                            <span>Fare each</span>
+                            <span>
+                                Fare each
+                            </span>
 
                             <strong>
                                 ₹
                                 {Number(
                                     fare.amount
-                                ).toFixed(2)}
+                                ).toLocaleString(
+                                    "en-IN",
+                                    {
+                                        minimumFractionDigits:
+                                            2,
+                                        maximumFractionDigits:
+                                            2
+                                    }
+                                )}
                             </strong>
                         </div>
                     </div>
 
                     <div className="selected-seat-list">
-                        <span>Selected seats</span>
+                        <span>
+                            Selected seats
+                        </span>
 
-                        {selectedSeats.length === 0 ? (
-                            <p>
-                                No seats selected yet.
-                            </p>
+                        {selectedSeats.length ===
+                        0 ? (
+                            <div className="selected-seat-empty">
+                                <strong>
+                                    No seats
+                                    selected
+                                </strong>
+
+                                <p>
+                                    Choose an
+                                    available seat
+                                    from the coach
+                                    layout.
+                                </p>
+                            </div>
                         ) : (
-                            <div className="selected-seat-chips">
+                            <div className="selected-seat-details">
                                 {selectedSeats.map(
                                     seat => (
-                                        <button
-                                            type="button"
+                                        <article
                                             key={
                                                 seat.seat_id
                                             }
-                                            disabled={holding}
-                                            onClick={() =>
-                                                toggleSeat(
-                                                    seat
-                                                )
-                                            }
-                                            title="Remove seat"
                                         >
-                                            <strong>
-                                                {
-                                                    seat.coach_number
-                                                }
-                                                {" / "}
-                                                {
-                                                    seat.seat_number
-                                                }
-                                            </strong>
+                                            <div>
+                                                <strong>
+                                                    {
+                                                        seat.coach_number
+                                                    }
+                                                    {" / "}
+                                                    {
+                                                        seat.seat_number
+                                                    }
+                                                </strong>
 
-                                            <span>×</span>
-                                        </button>
+                                                <span>
+                                                    {BERTH_INFO[
+                                                        seat.berth_type
+                                                    ] ||
+                                                        seat.berth_type}
+                                                </span>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                disabled={
+                                                    holding
+                                                }
+                                                onClick={() =>
+                                                    toggleSeat(
+                                                        seat
+                                                    )
+                                                }
+                                                aria-label={`Remove seat ${seat.seat_number}`}
+                                                title="Remove seat"
+                                            >
+                                                ×
+                                            </button>
+                                        </article>
                                     )
                                 )}
                             </div>
@@ -542,10 +1113,44 @@ function SeatSelection() {
                     </div>
 
                     <div className="seat-summary-total">
-                        <span>Total fare</span>
+                        <div>
+                            <span>
+                                Total fare
+                            </span>
+
+                            {selected.length >
+                                0 && (
+                                <small>
+                                    {
+                                        selected.length
+                                    }{" "}
+                                    × ₹
+                                    {Number(
+                                        fare.amount
+                                    ).toLocaleString(
+                                        "en-IN",
+                                        {
+                                            minimumFractionDigits:
+                                                2,
+                                            maximumFractionDigits:
+                                                2
+                                        }
+                                    )}
+                                </small>
+                            )}
+                        </div>
 
                         <strong>
-                            ₹{totalFare.toFixed(2)}
+                            ₹
+                            {totalFare.toLocaleString(
+                                "en-IN",
+                                {
+                                    minimumFractionDigits:
+                                        2,
+                                    maximumFractionDigits:
+                                        2
+                                }
+                            )}
                         </strong>
                     </div>
 
@@ -553,25 +1158,32 @@ function SeatSelection() {
                         type="button"
                         className="primary-button seat-continue-button"
                         disabled={
-                            selected.length === 0 ||
+                            selected.length ===
+                                0 ||
                             holding
                         }
-                        onClick={handleContinue}
+                        onClick={
+                            handleContinue
+                        }
                     >
                         {holding
                             ? "Holding seats..."
-                            : selected.length === 0
-                            ? "Select seats to continue"
-                            : `Continue with ${selected.length} ${
-                                selected.length === 1
-                                    ? "seat"
-                                    : "seats"
-                            }`}
+                            : selected.length ===
+                                0
+                              ? "Select seats to continue"
+                              : `Continue with ${selected.length} ${
+                                    selected.length ===
+                                    1
+                                        ? "seat"
+                                        : "seats"
+                                }`}
                     </button>
 
                     <p className="seat-hold-note">
-                        Selected seats are held when you
-                        continue to passenger details.
+                        Seat availability is
+                        confirmed when your
+                        selection is held before
+                        passenger details.
                     </p>
                 </aside>
             </section>
