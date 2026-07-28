@@ -8017,3 +8017,180 @@ table {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* =========================================================
+   Profile Editing + Security
+   ========================================================= */
+
+.profile-main-column {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.profile-heading-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-edit-form {
+    margin-top: 23px;
+}
+
+.profile-form-grid,
+.password-new-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 15px;
+}
+
+.profile-edit-form .form-group,
+.password-change-form .form-group {
+    margin: 0;
+}
+
+.profile-input-hint {
+    margin-top: 6px;
+
+    display: block;
+
+    color: #94a3b8;
+
+    font-size: 9px;
+    line-height: 1.45;
+}
+
+.profile-edit-actions {
+    margin-top: 18px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.profile-verify-button {
+    width: 100%;
+    margin-top: 18px;
+}
+
+.profile-security-card {
+    padding: 25px;
+}
+
+.profile-security-card > header h2 {
+    margin: 4px 0 5px;
+
+    color: #0f172a;
+    font-size: 20px;
+}
+
+.profile-security-card > header p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 10px;
+    line-height: 1.55;
+}
+
+.password-change-form {
+    margin-top: 22px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.password-requirement {
+    margin: -3px 0 0;
+
+    color: #94a3b8;
+
+    font-size: 9px;
+}
+
+.password-change-form > .primary-button {
+    align-self: flex-start;
+}
+
+.profile-navigation-card {
+    padding: 18px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    border: 1px solid #dbe3ee;
+    border-radius: 11px;
+
+    background: #f8fafc;
+}
+
+.profile-navigation-card > div:first-child strong {
+    color: #0f172a;
+    font-size: 11px;
+}
+
+.profile-navigation-card > div:first-child p {
+    margin: 3px 0 0;
+
+    color: #64748b;
+    font-size: 9px;
+}
+
+.profile-navigation-card > div:last-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 620px) {
+    .profile-heading-actions {
+        width: 100%;
+
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .profile-heading-actions button {
+        width: 100%;
+    }
+
+    .profile-form-grid,
+    .password-new-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-edit-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .profile-edit-actions button {
+        width: 100%;
+    }
+
+    .password-change-form > .primary-button {
+        width: 100%;
+    }
+
+    .profile-navigation-card {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .profile-navigation-card > div:last-child {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .profile-navigation-card button {
+        width: 100%;
+    }
+}

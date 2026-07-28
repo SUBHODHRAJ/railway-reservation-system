@@ -8,13 +8,16 @@ import {
 import {
     getProfile,
     loginUser,
-    registerUser
+    registerUser,
+    updateProfile
 } from "../api/authApi";
 
 const AuthContext = createContext(null);
 
 const normaliseUser = user => {
-    if (!user) return null;
+    if (!user) {
+        return null;
+    }
 
     return {
         id: user.id,
@@ -30,10 +33,13 @@ const normaliseUser = user => {
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
         try {
-            const saved = localStorage.getItem("user");
+            const saved =
+                localStorage.getItem("user");
 
             return saved
-                ? normaliseUser(JSON.parse(saved))
+                ? normaliseUser(
+                      JSON.parse(saved)
+                  )
                 : null;
         } catch {
             return null;
@@ -41,11 +47,14 @@ export const AuthProvider = ({ children }) => {
     });
 
     const [loading, setLoading] = useState(
-        Boolean(localStorage.getItem("token"))
+        Boolean(
+            localStorage.getItem("token")
+        )
     );
 
     const saveUser = value => {
-        const normalised = normaliseUser(value);
+        const normalised =
+            normaliseUser(value);
 
         setUser(normalised);
 
@@ -55,20 +64,37 @@ export const AuthProvider = ({ children }) => {
                 JSON.stringify(normalised)
             );
         } else {
-            localStorage.removeItem("user");
+            localStorage.removeItem(
+                "user"
+            );
         }
 
         return normalised;
     };
 
     const refreshProfile = async () => {
-        const { data } = await getProfile();
+        const { data } =
+            await getProfile();
 
         return saveUser(data);
     };
 
+    const updateAccount = async details => {
+        const { data } =
+            await updateProfile(details);
+
+        const updatedUser =
+            saveUser(data.user);
+
+        return {
+            ...data,
+            user: updatedUser
+        };
+    };
+
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        const token =
+            localStorage.getItem("token");
 
         if (!token) {
             setLoading(false);
@@ -79,8 +105,14 @@ export const AuthProvider = ({ children }) => {
             try {
                 await refreshProfile();
             } catch {
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
+                localStorage.removeItem(
+                    "token"
+                );
+
+                localStorage.removeItem(
+                    "user"
+                );
+
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -91,11 +123,16 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async credentials => {
-        const { data } = await loginUser(credentials);
+        const { data } =
+            await loginUser(credentials);
 
-        localStorage.setItem("token", data.token);
+        localStorage.setItem(
+            "token",
+            data.token
+        );
 
-        const loggedUser = saveUser(data.user);
+        const loggedUser =
+            saveUser(data.user);
 
         return {
             ...data,
@@ -104,13 +141,16 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async details => {
-        const { data } = await registerUser(details);
+        const { data } =
+            await registerUser(details);
+
         return data;
     };
 
     const logout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+
         setUser(null);
     };
 
@@ -122,7 +162,8 @@ export const AuthProvider = ({ children }) => {
                 login,
                 register,
                 logout,
-                refreshProfile
+                refreshProfile,
+                updateAccount
             }}
         >
             {children}
@@ -131,7 +172,8 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => {
-    const context = useContext(AuthContext);
+    const context =
+        useContext(AuthContext);
 
     if (!context) {
         throw new Error(

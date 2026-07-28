@@ -8,3 +8,9 @@ export const loginUser = data =>
 
 export const getProfile = () =>
     api.get("/auth/profile");
+
+export const updateProfile = data =>
+    api.patch("/auth/profile", data);
+
+export const changePassword = data =>
+    api.patch("/auth/password", data);

@@ -3,7 +3,9 @@ const express = require("express");
 const {
     register,
     login,
-    profile
+    profile,
+    updateProfile,
+    changePassword
 } = require("../controllers/authController");
 
 const {
@@ -14,6 +16,23 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
-router.get("/profile", authenticate, profile);
+
+router.get(
+    "/profile",
+    authenticate,
+    profile
+);
+
+router.patch(
+    "/profile",
+    authenticate,
+    updateProfile
+);
+
+router.patch(
+    "/password",
+    authenticate,
+    changePassword
+);
 
 module.exports = router;

@@ -26,7 +26,8 @@ import BookingReview from "./pages/BookingReview";
 import Payment from "./pages/Payment";
 import Confirmation from "./pages/Confirmation";
 import PaymentFailed from "./pages/PaymentFailed";
-
+import PnrLookup from "./pages/PnrLookup";
+import Profile from "./pages/Profile";
 import MyBookings from "./pages/MyBookings";
 import BookingDetails from "./pages/BookingDetails";
 import NotFound from "./pages/NotFound";
@@ -193,6 +194,23 @@ function App() {
                         <VerifiedRoute>
                             <BookingDetails />
                         </VerifiedRoute>
+                    }
+                />
+                <Route
+                    path="/pnr"
+                    element={
+                        <VerifiedRoute>
+                            <PnrLookup />
+                        </VerifiedRoute>
+                    }
+                />
+
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
                     }
                 />
 

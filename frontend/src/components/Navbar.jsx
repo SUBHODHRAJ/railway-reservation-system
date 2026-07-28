@@ -81,7 +81,8 @@ function Navbar() {
                             aria-controls="main-navigation"
                             onClick={() =>
                                 setMenuOpen(
-                                    previous => !previous
+                                    previous =>
+                                        !previous
                                 )
                             }
                         >
@@ -106,36 +107,28 @@ function Navbar() {
                                     <>
                                         <NavLink
                                             to="/admin/dashboard"
-                                            className={
-                                                getNavClass
-                                            }
+                                            className={getNavClass}
                                         >
                                             Dashboard
                                         </NavLink>
 
                                         <NavLink
                                             to="/admin/users"
-                                            className={
-                                                getNavClass
-                                            }
+                                            className={getNavClass}
                                         >
                                             Users
                                         </NavLink>
 
                                         <NavLink
                                             to="/admin/trains"
-                                            className={
-                                                getNavClass
-                                            }
+                                            className={getNavClass}
                                         >
                                             Trains
                                         </NavLink>
 
                                         <NavLink
                                             to="/admin/bookings"
-                                            className={
-                                                getNavClass
-                                            }
+                                            className={getNavClass}
                                         >
                                             Bookings
                                         </NavLink>
@@ -144,18 +137,21 @@ function Navbar() {
                                     <>
                                         <NavLink
                                             to="/search"
-                                            className={
-                                                getNavClass
-                                            }
+                                            className={getNavClass}
                                         >
                                             Search trains
                                         </NavLink>
 
                                         <NavLink
+                                            to="/pnr"
+                                            className={getNavClass}
+                                        >
+                                            PNR Status
+                                        </NavLink>
+
+                                        <NavLink
                                             to="/my-bookings"
-                                            className={
-                                                getNavClass
-                                            }
+                                            className={getNavClass}
                                         >
                                             My Bookings
                                         </NavLink>
@@ -163,9 +159,7 @@ function Navbar() {
                                 ) : (
                                     <NavLink
                                         to="/verify-email"
-                                        className={
-                                            getNavClass
-                                        }
+                                        className={getNavClass}
                                     >
                                         Verify Email
                                     </NavLink>
@@ -173,27 +167,37 @@ function Navbar() {
                             </nav>
 
                             <div className="navbar-account">
-                                <div
-                                    className="navbar-avatar"
-                                    aria-hidden="true"
+                                <button
+                                    type="button"
+                                    className="navbar-profile-button"
+                                    onClick={() =>
+                                        navigate("/profile")
+                                    }
+                                    aria-label="Open account"
                                 >
-                                    {userInitial}
-                                </div>
-
-                                <div className="navbar-user-details">
-                                    <strong>
-                                        {user.name ||
-                                            "Account"}
-                                    </strong>
-
-                                    <span>
-                                        {user.role === "ADMIN"
-                                            ? "Administrator"
-                                            : user.emailVerified
-                                            ? "Passenger"
-                                            : "Verification required"}
+                                    <span
+                                        className="navbar-avatar"
+                                        aria-hidden="true"
+                                    >
+                                        {userInitial}
                                     </span>
-                                </div>
+
+                                    <span className="navbar-user-details">
+                                        <strong>
+                                            {user.name ||
+                                                "Account"}
+                                        </strong>
+
+                                        <span>
+                                            {user.role ===
+                                            "ADMIN"
+                                                ? "Administrator"
+                                                : user.emailVerified
+                                                ? "Passenger"
+                                                : "Verification required"}
+                                        </span>
+                                    </span>
+                                </button>
 
                                 <button
                                     type="button"
