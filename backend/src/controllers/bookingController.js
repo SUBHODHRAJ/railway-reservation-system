@@ -471,7 +471,15 @@ const getMyBookings = async (req, res) => {
                 dst.station_code AS destination_code,
                 dst.station_name AS destination_name,
 
-                COUNT(DISTINCT p.id) AS passenger_count
+                COUNT(DISTINCT p.id) AS passenger_count,
+
+                (
+                    SELECT pay.status
+                    FROM payments pay
+                    WHERE pay.booking_id = b.id
+                    ORDER BY pay.id DESC
+                    LIMIT 1
+                ) AS payment_status
 
              FROM bookings b
 
@@ -519,7 +527,6 @@ const getMyBookings = async (req, res) => {
         });
     }
 };
-
 const getBookingByPNR = async (req, res) => {
     try {
         const { pnr } = req.params;

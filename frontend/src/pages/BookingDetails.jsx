@@ -1,4 +1,9 @@
-import { useEffect, useState } from "react";
+import {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
 import {
     useNavigate,
     useParams
@@ -13,8 +18,12 @@ function BookingDetails() {
     const { pnr } = useParams();
     const navigate = useNavigate();
 
-    const [booking, setBooking] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [booking, setBooking] =
+        useState(null);
+
+    const [loading, setLoading] =
+        useState(true);
+
     const [cancelling, setCancelling] =
         useState(false);
 
@@ -23,7 +32,11 @@ function BookingDetails() {
         setShowCancelConfirm
     ] = useState(false);
 
-    const [error, setError] = useState("");
+    const [error, setError] =
+        useState("");
+
+    const [message, setMessage] =
+        useState("");
 
     const loadBooking = async () => {
         try {
@@ -77,6 +90,42 @@ function BookingDetails() {
         );
     };
 
+    const formatDateTime = value => {
+        if (!value) {
+            return "—";
+        }
+
+        const date = new Date(value);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return String(value);
+        }
+
+        return new Intl.DateTimeFormat(
+            "en-IN",
+            {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        ).format(date);
+    };
+
+    const formatStatus = status => {
+        if (!status) {
+            return "—";
+        }
+
+        return String(status)
+            .replaceAll("_", " ");
+    };
+
     const handleCancel = async () => {
         if (
             !booking?.booking_id ||
@@ -87,13 +136,22 @@ function BookingDetails() {
 
         setCancelling(true);
         setError("");
+        setMessage("");
 
         try {
-            await cancelBooking(
-                booking.booking_id
-            );
+            const response =
+                await cancelBooking(
+                    booking.booking_id
+                );
 
             setShowCancelConfirm(false);
+
+            setMessage(
+                response.data?.refund ===
+                "REFUNDED"
+                    ? "Booking cancelled successfully. The payment has been marked as refunded."
+                    : "Booking cancelled successfully."
+            );
 
             await loadBooking();
         } catch (error) {
@@ -105,6 +163,17 @@ function BookingDetails() {
             setCancelling(false);
         }
     };
+
+    const latestPayment =
+        useMemo(() => {
+            if (
+                !booking?.payments?.length
+            ) {
+                return null;
+            }
+
+            return booking.payments[0];
+        }, [booking]);
 
     if (loading) {
         return (
@@ -133,7 +202,9 @@ function BookingDetails() {
                     type="button"
                     className="secondary-action-button booking-load-back"
                     onClick={() =>
-                        navigate("/my-bookings")
+                        navigate(
+                            "/my-bookings"
+                        )
                     }
                 >
                     Back to bookings
@@ -152,10 +223,17 @@ function BookingDetails() {
         booking.passengers || [];
 
     const classType =
-        passengers[0]?.class_type || "—";
+        passengers[0]?.class_type ||
+        "—";
 
     const totalFare =
-        Number(booking.total_fare || 0);
+        Number(
+            booking.total_fare || 0
+        );
+
+    const paymentStatus =
+        latestPayment?.status ||
+        "NOT_AVAILABLE";
 
     return (
         <main className="page-container booking-details-page">
@@ -170,7 +248,9 @@ function BookingDetails() {
                     <p>
                         Reservation and passenger
                         information for PNR{" "}
-                        <strong>{booking.pnr}</strong>
+                        <strong>
+                            {booking.pnr}
+                        </strong>
                     </p>
                 </div>
 
@@ -178,12 +258,23 @@ function BookingDetails() {
                     type="button"
                     className="secondary-action-button"
                     onClick={() =>
-                        navigate("/my-bookings")
+                        navigate(
+                            "/my-bookings"
+                        )
                     }
                 >
                     Back to bookings
                 </button>
             </section>
+
+            {message && (
+                <div
+                    className="form-success booking-details-message"
+                    role="status"
+                >
+                    {message}
+                </div>
+            )}
 
             <article
                 className={`booking-ticket-modern ${
@@ -199,22 +290,30 @@ function BookingDetails() {
                         </span>
 
                         <h2>
-                            {booking.train_number}
+                            {
+                                booking.train_number
+                            }
                             {" — "}
-                            {booking.train_name}
+                            {
+                                booking.train_name
+                            }
                         </h2>
                     </div>
 
                     <span
                         className={`booking-status status-${booking.status?.toLowerCase()}`}
                     >
-                        {booking.status}
+                        {formatStatus(
+                            booking.status
+                        )}
                     </span>
                 </header>
 
                 <section className="booking-pnr-strip">
                     <div>
-                        <span>PNR NUMBER</span>
+                        <span>
+                            PNR NUMBER
+                        </span>
 
                         <strong>
                             {booking.pnr}
@@ -222,7 +321,9 @@ function BookingDetails() {
                     </div>
 
                     <div>
-                        <span>TRAVEL CLASS</span>
+                        <span>
+                            TRAVEL CLASS
+                        </span>
 
                         <strong>
                             {classType}
@@ -247,10 +348,12 @@ function BookingDetails() {
                             <p>
                                 This reservation is no
                                 longer valid for travel.
-                                The successful simulated
-                                payment has been refunded
-                                and the booked seats have
-                                been released.
+                                Reserved seats have been
+                                released.
+                                {paymentStatus ===
+                                "REFUNDED"
+                                    ? " The payment is marked as refunded."
+                                    : ""}
                             </p>
                         </div>
                     </section>
@@ -261,11 +364,15 @@ function BookingDetails() {
                         <span>FROM</span>
 
                         <strong>
-                            {booking.source_code}
+                            {
+                                booking.source_code
+                            }
                         </strong>
 
                         <p>
-                            {booking.source_name}
+                            {
+                                booking.source_name
+                            }
                         </p>
                     </div>
 
@@ -282,7 +389,9 @@ function BookingDetails() {
                         <span>TO</span>
 
                         <strong>
-                            {booking.destination_code}
+                            {
+                                booking.destination_code
+                            }
                         </strong>
 
                         <p>
@@ -295,7 +404,9 @@ function BookingDetails() {
 
                 <section className="booking-ticket-meta">
                     <div>
-                        <span>Journey date</span>
+                        <span>
+                            Journey date
+                        </span>
 
                         <strong>
                             {formatDate(
@@ -313,34 +424,133 @@ function BookingDetails() {
                     </div>
 
                     <div>
-                        <span>Passengers</span>
+                        <span>
+                            Passengers
+                        </span>
 
                         <strong>
-                            {passengers.length}
+                            {
+                                passengers.length
+                            }
                         </strong>
                     </div>
 
                     <div>
-                        <span>Total fare</span>
+                        <span>
+                            Total fare
+                        </span>
 
                         <strong>
                             ₹
                             {totalFare.toLocaleString(
                                 "en-IN",
                                 {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
+                                    minimumFractionDigits:
+                                        2,
+                                    maximumFractionDigits:
+                                        2
                                 }
                             )}
                         </strong>
                     </div>
                 </section>
 
-                {passengers.length > 0 && (
+                <section className="booking-payment-section">
+                    <div className="booking-section-heading">
+                        <div>
+                            <span>
+                                PAYMENT
+                            </span>
+
+                            <h3>
+                                Payment details
+                            </h3>
+                        </div>
+
+                        <span
+                            className={`booking-payment-badge payment-${paymentStatus.toLowerCase()}`}
+                        >
+                            {formatStatus(
+                                paymentStatus
+                            )}
+                        </span>
+                    </div>
+
+                    {latestPayment ? (
+                        <div className="booking-payment-grid">
+                            <div>
+                                <span>
+                                    Amount
+                                </span>
+
+                                <strong>
+                                    ₹
+                                    {Number(
+                                        latestPayment.amount ||
+                                            0
+                                    ).toLocaleString(
+                                        "en-IN",
+                                        {
+                                            minimumFractionDigits:
+                                                2,
+                                            maximumFractionDigits:
+                                                2
+                                        }
+                                    )}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>
+                                    Provider
+                                </span>
+
+                                <strong>
+                                    {latestPayment.provider ||
+                                        "—"}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>
+                                    Payment ID
+                                </span>
+
+                                <strong>
+                                    {latestPayment.provider_payment_id ||
+                                        "—"}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>
+                                    Paid at
+                                </span>
+
+                                <strong>
+                                    {formatDateTime(
+                                        latestPayment.paid_at
+                                    )}
+                                </strong>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="booking-payment-empty">
+                            No payment record is
+                            available for this
+                            reservation.
+                        </p>
+                    )}
+                </section>
+
+                {passengers.length >
+                    0 && (
                     <section className="booking-ticket-passengers">
                         <div className="booking-passenger-heading">
                             <div>
-                                <span>TRAVELLERS</span>
+                                <span>
+                                    TRAVELLERS
+                                </span>
 
                                 <h3>
                                     Passenger details
@@ -348,9 +558,11 @@ function BookingDetails() {
                             </div>
 
                             <strong>
-                                {passengers.length}
-                                {" "}
-                                {passengers.length === 1
+                                {
+                                    passengers.length
+                                }{" "}
+                                {passengers.length ===
+                                1
                                     ? "passenger"
                                     : "passengers"}
                             </strong>
@@ -366,12 +578,12 @@ function BookingDetails() {
                                         className="booking-ticket-passenger"
                                         key={
                                             passenger.id ??
-                                            passenger.seat_id ??
                                             index
                                         }
                                     >
                                         <div className="booking-passenger-index">
-                                            {index + 1}
+                                            {index +
+                                                1}
                                         </div>
 
                                         <div className="booking-passenger-person">
@@ -398,7 +610,8 @@ function BookingDetails() {
 
                                         <div className="booking-passenger-seat">
                                             <span>
-                                                Coach / Seat
+                                                Coach /
+                                                Seat
                                             </span>
 
                                             <strong>
@@ -426,10 +639,26 @@ function BookingDetails() {
 
                 <footer className="booking-ticket-footer">
                     <div>
-                        <span>BOOKING STATUS</span>
+                        <span>
+                            BOOKING STATUS
+                        </span>
 
                         <strong>
-                            {booking.status}
+                            {formatStatus(
+                                booking.status
+                            )}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            PAYMENT STATUS
+                        </span>
+
+                        <strong>
+                            {formatStatus(
+                                paymentStatus
+                            )}
                         </strong>
                     </div>
 
@@ -464,15 +693,18 @@ function BookingDetails() {
                             </span>
 
                             <h2 id="cancel-booking-title">
-                                Cancel this booking?
+                                Cancel this
+                                booking?
                             </h2>
 
                             <p>
-                                The reservation will be
-                                cancelled, the successful
-                                simulated payment will be
-                                refunded, and all booked
-                                seats will be released.
+                                This will cancel the
+                                reservation and release
+                                all reserved seats.
+                                Successful payments are
+                                marked as refunded by the
+                                current simulated payment
+                                flow.
                             </p>
                         </div>
 
@@ -480,7 +712,9 @@ function BookingDetails() {
                             <button
                                 type="button"
                                 className="secondary-action-button"
-                                disabled={cancelling}
+                                disabled={
+                                    cancelling
+                                }
                                 onClick={() =>
                                     setShowCancelConfirm(
                                         false
@@ -493,8 +727,12 @@ function BookingDetails() {
                             <button
                                 type="button"
                                 className="danger-button"
-                                disabled={cancelling}
-                                onClick={handleCancel}
+                                disabled={
+                                    cancelling
+                                }
+                                onClick={
+                                    handleCancel
+                                }
                             >
                                 {cancelling
                                     ? "Cancelling..."
@@ -510,12 +748,14 @@ function BookingDetails() {
                         <>
                             <div>
                                 <strong>
-                                    Need to cancel?
+                                    Need to
+                                    cancel?
                                 </strong>
 
                                 <span>
-                                    Cancelling releases
-                                    your reserved seats.
+                                    Cancelling
+                                    releases your
+                                    reserved seats.
                                 </span>
                             </div>
 
@@ -523,7 +763,14 @@ function BookingDetails() {
                                 type="button"
                                 className="danger-outline-button"
                                 onClick={() => {
-                                    setError("");
+                                    setError(
+                                        ""
+                                    );
+
+                                    setMessage(
+                                        ""
+                                    );
+
                                     setShowCancelConfirm(
                                         true
                                     );
@@ -538,12 +785,14 @@ function BookingDetails() {
                     <>
                         <div>
                             <strong>
-                                Plan another trip
+                                Plan another
+                                trip
                             </strong>
 
                             <span>
-                                Search available trains
-                                for a new journey.
+                                Search available
+                                trains for a new
+                                journey.
                             </span>
                         </div>
 
@@ -551,10 +800,13 @@ function BookingDetails() {
                             type="button"
                             className="primary-button"
                             onClick={() =>
-                                navigate("/search")
+                                navigate(
+                                    "/search"
+                                )
                             }
                         >
-                            Book another journey
+                            Book another
+                            journey
                         </button>
                     </>
                 )}
