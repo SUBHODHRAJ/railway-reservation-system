@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import {
     Navigate,
     useLocation,
@@ -81,6 +81,12 @@ function Payment() {
         0
     );
 
+    const formattedAmount =
+        amount.toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
     const handlePayment = async success => {
         if (
             !payment?.paymentId ||
@@ -139,7 +145,7 @@ function Payment() {
                 />
 
                 <p>
-                    Preparing secure payment...
+                    Preparing payment...
                 </p>
             </main>
         );
@@ -158,24 +164,51 @@ function Payment() {
                     </h1>
 
                     <p>
-                        Confirm the reservation details
-                        before completing the simulated
-                        payment.
+                        Review the reservation and
+                        complete the simulated payment.
                     </p>
                 </div>
 
                 <div className="transaction-step">
-                    <span>Final step</span>
+                    <span>STEP 4 OF 4</span>
                     <strong>Payment</strong>
                 </div>
             </section>
+
+            <div className="booking-progress payment-progress">
+                <div className="booking-progress-step booking-progress-complete">
+                    <span>1</span>
+                    <strong>Seats</strong>
+                </div>
+
+                <div className="booking-progress-line booking-progress-line-complete" />
+
+                <div className="booking-progress-step booking-progress-complete">
+                    <span>2</span>
+                    <strong>Passengers</strong>
+                </div>
+
+                <div className="booking-progress-line booking-progress-line-complete" />
+
+                <div className="booking-progress-step booking-progress-complete">
+                    <span>3</span>
+                    <strong>Review</strong>
+                </div>
+
+                <div className="booking-progress-line booking-progress-line-complete" />
+
+                <div className="booking-progress-step booking-progress-active">
+                    <span>4</span>
+                    <strong>Payment</strong>
+                </div>
+            </div>
 
             <section className="transaction-layout">
                 <article className="transaction-card payment-modern-card">
                     <header className="transaction-card-header">
                         <div>
                             <span className="transaction-label">
-                                RESERVATION
+                                RESERVATION PAYMENT
                             </span>
 
                             <h2>
@@ -183,13 +216,12 @@ function Payment() {
                             </h2>
 
                             <p>
-                                Booking #
-                                {booking.bookingId}
+                                Booking #{booking.bookingId}
                             </p>
                         </div>
 
                         <span className="transaction-ready-badge">
-                            Ready
+                            Ready to pay
                         </span>
                     </header>
 
@@ -207,9 +239,10 @@ function Payment() {
                             </strong>
 
                             <span>
-                                This is a development
-                                payment. No real money
-                                will be charged.
+                                No real money is charged.
+                                Choose success or failure
+                                to test either transaction
+                                outcome.
                             </span>
                         </div>
                     </div>
@@ -219,7 +252,7 @@ function Payment() {
                             <span>PNR</span>
 
                             <strong>
-                                {booking.pnr}
+                                {booking.pnr || "—"}
                             </strong>
                         </div>
 
@@ -257,20 +290,38 @@ function Payment() {
                             </span>
 
                             <p>
-                                Total reservation amount
+                                Final reservation amount
                             </p>
                         </div>
 
                         <strong>
-                            ₹
-                            {amount.toLocaleString(
-                                "en-IN",
-                                {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                }
-                            )}
+                            ₹{formattedAmount}
                         </strong>
+                    </section>
+
+                    <section className="payment-method-panel">
+                        <div className="payment-method-heading">
+                            <div>
+                                <span>
+                                    PAYMENT METHOD
+                                </span>
+
+                                <strong>
+                                    Simulated transaction
+                                </strong>
+                            </div>
+
+                            <span className="payment-method-status">
+                                TEST MODE
+                            </span>
+                        </div>
+
+                        <p>
+                            Successful payment confirms
+                            the booking. The failure
+                            action tests the unsuccessful
+                            payment and seat-release flow.
+                        </p>
                     </section>
 
                     {error && (
@@ -296,13 +347,7 @@ function Payment() {
                         >
                             {processing
                                 ? "Processing payment..."
-                                : `Pay ₹${amount.toLocaleString(
-                                      "en-IN",
-                                      {
-                                          minimumFractionDigits: 2,
-                                          maximumFractionDigits: 2
-                                      }
-                                  )}`}
+                                : `Pay ₹${formattedAmount}`}
                         </button>
 
                         <button
@@ -321,9 +366,9 @@ function Payment() {
                     </div>
 
                     <p className="transaction-helper">
-                        Selecting the failure option is
-                        provided only for testing the
-                        unsuccessful-payment flow.
+                        Do not close this page while a
+                        simulated transaction is being
+                        processed.
                     </p>
                 </article>
 
@@ -337,7 +382,7 @@ function Payment() {
                     </h3>
 
                     <p>
-                        Your booking has been created and
+                        The booking has been created and
                         is waiting for payment completion.
                     </p>
 
@@ -345,29 +390,45 @@ function Payment() {
 
                     <div className="payment-side-row">
                         <span>PNR</span>
-                        <strong>{booking.pnr}</strong>
+                        <strong>
+                            {booking.pnr || "—"}
+                        </strong>
+                    </div>
+
+                    <div className="payment-side-row">
+                        <span>Booking</span>
+                        <strong>
+                            #{booking.bookingId}
+                        </strong>
                     </div>
 
                     <div className="payment-side-row">
                         <span>Status</span>
-                        <strong>Awaiting payment</strong>
+                        <strong>
+                            Awaiting payment
+                        </strong>
                     </div>
 
                     <div className="payment-side-divider" />
 
                     <div className="payment-side-total">
-                        <span>Total</span>
+                        <span>Total payable</span>
 
                         <strong>
-                            ₹
-                            {amount.toLocaleString(
-                                "en-IN",
-                                {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                }
-                            )}
+                            ₹{formattedAmount}
                         </strong>
+                    </div>
+
+                    <div className="payment-security-note">
+                        <span aria-hidden="true">
+                            ✓
+                        </span>
+
+                        <p>
+                            Reservation data is ready.
+                            Payment completion determines
+                            the final booking status.
+                        </p>
                     </div>
                 </aside>
             </section>

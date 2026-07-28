@@ -1,14 +1,26 @@
+﻿import { useState } from "react";
 import {
     Navigate,
     useLocation,
     useNavigate
 } from "react-router-dom";
 
+const BERTH_NAMES = {
+    LB: "Lower Berth",
+    MB: "Middle Berth",
+    UB: "Upper Berth",
+    SL: "Side Lower",
+    SU: "Side Upper"
+};
+
 function Confirmation() {
     const location = useLocation();
     const navigate = useNavigate();
 
     const state = location.state;
+
+    const [copied, setCopied] =
+        useState(false);
 
     if (
         !state?.booking ||
@@ -31,6 +43,9 @@ function Confirmation() {
         seats,
         passengers
     } = state;
+
+    const passengerList =
+        passengers || [];
 
     const formatDate = date => {
         if (!date) {
@@ -64,8 +79,33 @@ function Confirmation() {
         );
     };
 
-    const passengerList =
-        passengers || [];
+    const formatGender = gender => {
+        if (!gender) {
+            return "—";
+        }
+
+        return (
+            gender.charAt(0) +
+            gender.slice(1).toLowerCase()
+        );
+    };
+
+    const handleCopyPnr = async () => {
+        try {
+            await navigator.clipboard.writeText(
+                booking.pnr
+            );
+
+            setCopied(true);
+
+            window.setTimeout(
+                () => setCopied(false),
+                1800
+            );
+        } catch {
+            setCopied(false);
+        }
+    };
 
     return (
         <main className="page-container transaction-result-page">
@@ -87,7 +127,7 @@ function Confirmation() {
                     </h1>
 
                     <p>
-                        Your reservation and simulated
+                        The reservation and simulated
                         payment were completed
                         successfully.
                     </p>
@@ -100,11 +140,28 @@ function Confirmation() {
                         <strong>
                             {booking.pnr}
                         </strong>
+
+                        <small>
+                            Keep this number for booking
+                            lookup and ticket access.
+                        </small>
                     </div>
 
-                    <span className="confirmed-badge">
-                        Confirmed
-                    </span>
+                    <div className="confirmation-pnr-actions">
+                        <span className="confirmed-badge">
+                            Confirmed
+                        </span>
+
+                        <button
+                            type="button"
+                            className="confirmation-copy-button"
+                            onClick={handleCopyPnr}
+                        >
+                            {copied
+                                ? "Copied"
+                                : "Copy PNR"}
+                        </button>
+                    </div>
                 </section>
 
                 <article className="confirmation-ticket-modern">
@@ -264,12 +321,10 @@ function Confirmation() {
                                                         {
                                                             passenger.age
                                                         }
-                                                        {
-                                                            " • "
-                                                        }
-                                                        {
+                                                        {" • "}
+                                                        {formatGender(
                                                             passenger.gender
-                                                        }
+                                                        )}
                                                     </span>
                                                 </div>
 
@@ -281,20 +336,18 @@ function Confirmation() {
                                                     <strong>
                                                         {seat?.coach_number ||
                                                             "—"}
-                                                        {
-                                                            " / "
-                                                        }
+                                                        {" / "}
                                                         {seat?.seat_number ||
                                                             "—"}
                                                     </strong>
 
-                                                    {seat?.berth_type && (
-                                                        <small>
-                                                            {
-                                                                seat.berth_type
-                                                            }
-                                                        </small>
-                                                    )}
+                                                    <small>
+                                                        {BERTH_NAMES[
+                                                            seat?.berth_type
+                                                        ] ||
+                                                            seat?.berth_type ||
+                                                            "—"}
+                                                    </small>
                                                 </div>
                                             </article>
                                         );
@@ -304,6 +357,18 @@ function Confirmation() {
                         </section>
                     )}
                 </article>
+
+                <section className="confirmation-next-step">
+                    <span>
+                        RESERVATION COMPLETE
+                    </span>
+
+                    <p>
+                        Your confirmed booking is now
+                        available under My Bookings and
+                        through PNR lookup.
+                    </p>
+                </section>
 
                 <footer className="transaction-result-actions">
                     <button

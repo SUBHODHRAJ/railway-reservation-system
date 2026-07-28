@@ -1,4 +1,4 @@
-import {
+﻿import {
     Navigate,
     useLocation,
     useNavigate
@@ -23,6 +23,11 @@ function PaymentFailed() {
         );
     }
 
+    const paymentStatus =
+        paymentResult?.paymentStatus ||
+        paymentResult?.status ||
+        "FAILED";
+
     return (
         <main className="page-container transaction-result-page">
             <section className="transaction-result-card failure-modern">
@@ -44,7 +49,7 @@ function PaymentFailed() {
 
                     <p>
                         The transaction was unsuccessful,
-                        so this reservation was not
+                        so the reservation was not
                         confirmed.
                     </p>
                 </header>
@@ -58,6 +63,11 @@ function PaymentFailed() {
                         <strong>
                             {booking.pnr || "—"}
                         </strong>
+
+                        <small>
+                            This reference belongs to the
+                            unsuccessful reservation.
+                        </small>
                     </div>
 
                     <span className="failure-status-badge">
@@ -80,10 +90,10 @@ function PaymentFailed() {
 
                         <p>
                             This was a simulated
-                            transaction. The seats held for
-                            this reservation have been
-                            released and are available for
-                            booking again.
+                            transaction. The seats held
+                            for this reservation have
+                            been released and can be
+                            selected in a new booking.
                         </p>
                     </div>
                 </section>
@@ -103,9 +113,7 @@ function PaymentFailed() {
                         </span>
 
                         <strong>
-                            {paymentResult?.paymentStatus ||
-                                paymentResult?.status ||
-                                "FAILED"}
+                            {paymentStatus}
                         </strong>
                     </div>
 
@@ -122,8 +130,26 @@ function PaymentFailed() {
                     <div>
                         <span>Seat hold</span>
 
-                        <strong>Released</strong>
+                        <strong>
+                            Released
+                        </strong>
                     </div>
+                </section>
+
+                <section className="failure-recovery">
+                    <span>
+                        WHAT TO DO NEXT
+                    </span>
+
+                    <h2>
+                        Start a new reservation
+                    </h2>
+
+                    <p>
+                        Search for the journey again,
+                        choose available seats and
+                        complete a new booking.
+                    </p>
                 </section>
 
                 <footer className="transaction-result-actions">
@@ -134,7 +160,7 @@ function PaymentFailed() {
                             navigate("/search")
                         }
                     >
-                        Search trains
+                        Search trains again
                     </button>
 
                     <button
