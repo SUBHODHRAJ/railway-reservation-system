@@ -8804,3 +8804,185 @@ table {
         grid-template-columns: 1fr;
     }
 }
+
+/* =========================================================
+   Journey Class Selection Enhancements
+   ========================================================= */
+
+.journey-quick-stats {
+    margin-top: 20px;
+
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    overflow: hidden;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+
+    background: #f8fafc;
+}
+
+.journey-quick-stats > div {
+    padding: 13px 16px;
+}
+
+.journey-quick-stats > div + div {
+    border-left: 1px solid #e2e8f0;
+}
+
+.journey-quick-stats span {
+    display: block;
+    margin-bottom: 4px;
+
+    color: #64748b;
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.journey-quick-stats strong {
+    color: #0f172a;
+    font-size: 15px;
+}
+
+.route-stop-highlight {
+    background: #f8fbff;
+}
+
+.route-stop-highlight .route-stop-marker {
+    border-color: #2563eb;
+    background: #2563eb;
+}
+
+.class-description {
+    margin: 4px 0 0;
+
+    color: #64748b;
+    font-size: 8px;
+    line-height: 1.5;
+}
+
+.class-fare small {
+    display: block;
+    margin-top: 2px;
+
+    color: #94a3b8;
+    font-size: 7px;
+}
+
+.class-fare-unavailable {
+    color: #94a3b8 !important;
+}
+
+.class-availability-heading {
+    margin-bottom: 8px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.class-availability-heading > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.class-availability-heading strong {
+    color: #0f172a;
+    font-size: 11px;
+}
+
+.class-availability-heading > span {
+    color: #94a3b8;
+    font-size: 8px;
+}
+
+.availability-state {
+    width: fit-content;
+
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: 0.35px;
+    text-transform: uppercase;
+}
+
+.availability-state-available {
+    color: #15803d;
+}
+
+.availability-state-low {
+    color: #b45309;
+}
+
+.availability-state-unavailable {
+    color: #b91c1c;
+}
+
+.availability-meter-low > span {
+    background: #f59e0b;
+}
+
+.availability-meter-unavailable > span {
+    background: #dc2626;
+}
+
+.class-capacity-text {
+    display: block;
+    margin-top: 6px;
+
+    color: #94a3b8;
+    font-size: 7px;
+}
+
+.class-card-low {
+    border-color: #fde68a;
+}
+
+.class-card-unavailable {
+    background: #fafafa;
+}
+
+.class-fare-message {
+    margin-bottom: 11px;
+    padding: 8px 9px;
+
+    border: 1px solid #fed7aa;
+    border-radius: 6px;
+
+    background: #fff7ed;
+    color: #9a3412;
+
+    font-size: 8px;
+}
+
+.journey-no-classes {
+    padding: 28px;
+
+    text-align: center;
+}
+
+.journey-no-classes strong {
+    color: #334155;
+    font-size: 12px;
+}
+
+.journey-no-classes p {
+    margin: 5px 0 0;
+
+    color: #64748b;
+    font-size: 9px;
+}
+
+@media (max-width: 650px) {
+    .journey-quick-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .journey-quick-stats > div + div {
+        border-top: 1px solid #e2e8f0;
+        border-left: 0;
+    }
+}
