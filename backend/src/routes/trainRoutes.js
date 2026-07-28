@@ -1,6 +1,5 @@
 const express = require("express");
 const { query, param } = require("express-validator");
-
 const {
     getStations,
     searchTrains,
@@ -73,7 +72,34 @@ router.get(
     validate,
     getSeats
 );
+router.get(
+    "/fare",
+    [
+        query("trainId")
+            .isInt({ min: 1 })
+            .withMessage("Invalid train ID")
+            .toInt(),
 
-router.get("/fare", getFare);
+        query("source")
+            .trim()
+            .notEmpty()
+            .withMessage("Source is required")
+            .toUpperCase(),
+
+        query("destination")
+            .trim()
+            .notEmpty()
+            .withMessage("Destination is required")
+            .toUpperCase(),
+
+        query("classType")
+            .trim()
+            .toUpperCase()
+            .isIn(["SL", "3A", "2A", "1A"])
+            .withMessage("Invalid class type")
+    ],
+    validate,
+    getFare
+);
 
 module.exports = router;

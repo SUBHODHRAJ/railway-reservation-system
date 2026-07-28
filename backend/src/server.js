@@ -16,8 +16,46 @@ const otpRoutes = require("./routes/otpRoutes");
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+const allowedOrigins = (
+    process.env.FRONTEND_URL ||
+    "http://localhost:5173"
+)
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
+app.use(
+    cors({
+        origin(origin, callback) {
+            if (
+                !origin ||
+                allowedOrigins.includes(origin)
+            ) {
+                return callback(null, true);
+            }
+
+            return callback(
+                new Error(
+                    "Origin not allowed by CORS"
+                )
+            );
+        },
+        methods: [
+            "GET",
+            "POST",
+            "PATCH",
+            "PUT",
+            "DELETE"
+        ],
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization"
+        ]
+    })
+);
+app.use(express.json({
+    limit: "100kb"
+}));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/otp", otpRoutes);
