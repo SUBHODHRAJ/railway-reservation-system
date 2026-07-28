@@ -9345,3 +9345,424 @@ table {
         padding: 11px 12px;
     }
 }
+
+/* =========================================================
+   Passenger Details + Booking Review Enhancements
+   ========================================================= */
+
+.booking-progress {
+    max-width: 650px;
+    margin: 0 auto 22px;
+
+    display: flex;
+    align-items: center;
+}
+
+.booking-progress-step {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    color: #94a3b8;
+}
+
+.booking-progress-step span {
+    width: 24px;
+    height: 24px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    font-size: 8px;
+    font-weight: 800;
+}
+
+.booking-progress-step strong {
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.booking-progress-line {
+    height: 1px;
+    flex: 1;
+    min-width: 16px;
+    margin: 0 8px;
+
+    background: #dbe3ee;
+}
+
+.booking-progress-active {
+    color: #1d4ed8;
+}
+
+.booking-progress-active span {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.booking-progress-complete {
+    color: #334155;
+}
+
+.booking-progress-complete span {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.booking-progress-line-complete {
+    background: #93c5fd;
+}
+
+.passenger-hold {
+    min-width: 120px;
+}
+
+.passenger-hold small {
+    display: block;
+    margin-top: 3px;
+
+    color: #64748b;
+    font-size: 7px;
+}
+
+.passenger-hold-progress {
+    height: 3px;
+    margin-top: 16px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+    background: #e2e8f0;
+}
+
+.passenger-hold-progress span {
+    display: block;
+    height: 100%;
+
+    border-radius: inherit;
+    background: #2563eb;
+
+    transition: width 1s linear;
+}
+
+.passenger-section-intro {
+    margin-bottom: 12px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.passenger-section-intro > div > span {
+    color: #2563eb;
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+.passenger-section-intro h2 {
+    margin: 3px 0;
+
+    color: #0f172a;
+    font-size: 15px;
+}
+
+.passenger-section-intro p {
+    margin: 0;
+
+    color: #64748b;
+    font-size: 8px;
+}
+
+.passenger-section-intro > strong {
+    color: #475569;
+    font-size: 8px;
+    white-space: nowrap;
+}
+
+.passenger-card {
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.passenger-card-complete {
+    border-color: #bbf7d0;
+}
+
+.passenger-heading-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.passenger-index,
+.review-passenger-index {
+    width: 29px;
+    height: 29px;
+
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background: #eff6ff;
+    color: #1d4ed8;
+
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.passenger-assignment {
+    margin: 12px 0 15px;
+    padding: 8px 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+
+    background: #f8fafc;
+}
+
+.passenger-assignment span {
+    color: #64748b;
+    font-size: 7px;
+}
+
+.passenger-assignment strong {
+    color: #334155;
+    font-size: 8px;
+}
+
+.passenger-card-status {
+    margin-top: 10px;
+
+    display: flex;
+    justify-content: flex-end;
+}
+
+.passenger-card-status span {
+    color: #94a3b8;
+    font-size: 7px;
+    font-weight: 700;
+}
+
+.passenger-card-status .passenger-status-complete {
+    color: #15803d;
+}
+
+.passenger-seat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.passenger-seat-list article {
+    padding: 7px 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    border-bottom: 1px solid #eef2f7;
+}
+
+.passenger-seat-list article:last-child {
+    border-bottom: 0;
+}
+
+.passenger-seat-list article > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.passenger-seat-list span,
+.passenger-seat-list small {
+    color: #64748b;
+    font-size: 7px;
+}
+
+.passenger-seat-list strong {
+    color: #0f172a;
+    font-size: 8px;
+}
+
+.passenger-fare-breakdown {
+    padding: 11px 0;
+
+    border-top: 1px solid #e2e8f0;
+}
+
+.passenger-fare-breakdown > div {
+    padding: 3px 0;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.passenger-fare-breakdown span {
+    color: #64748b;
+    font-size: 8px;
+}
+
+.passenger-fare-breakdown strong {
+    color: #334155;
+    font-size: 8px;
+}
+
+.review-count-badge {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 6px;
+
+    background: #eff6ff;
+    color: #1d4ed8;
+
+    font-size: 9px;
+}
+
+.review-route > div:first-child > span,
+.review-route > div:last-child > span {
+    color: #94a3b8;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.45px;
+}
+
+.review-route > div:first-child > small,
+.review-route > div:last-child > small {
+    color: #64748b;
+    font-size: 7px;
+}
+
+.review-passenger {
+    align-items: center;
+}
+
+.review-passenger-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.review-inline-edit {
+    margin-top: 13px;
+    padding: 0;
+
+    border: 0;
+    background: transparent;
+
+    color: #2563eb;
+    font-size: 8px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.review-inline-edit:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+.review-inline-edit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.review-summary-route {
+    margin-bottom: 12px;
+    padding: 10px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+
+    background: #f8fafc;
+}
+
+.review-summary-route > div {
+    padding: 3px 0;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.review-summary-route span {
+    color: #64748b;
+    font-size: 7px;
+}
+
+.review-summary-route strong {
+    color: #0f172a;
+    font-size: 8px;
+}
+
+.review-total > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.review-total small {
+    color: #94a3b8;
+    font-size: 7px;
+}
+
+@media (max-width: 700px) {
+    .booking-progress-step strong {
+        display: none;
+    }
+
+    .booking-progress-line {
+        margin: 0 5px;
+    }
+
+    .passenger-section-intro {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .passenger-assignment {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .booking-progress {
+        max-width: 280px;
+    }
+
+    .passenger-heading-main {
+        align-items: flex-start;
+    }
+
+    .passenger-index,
+    .review-passenger-index {
+        width: 25px;
+        height: 25px;
+    }
+}

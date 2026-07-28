@@ -1,9 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     Navigate,
     useLocation,
     useNavigate
 } from "react-router-dom";
+
+const BERTH_NAMES = {
+    LB: "Lower Berth",
+    MB: "Middle Berth",
+    UB: "Upper Berth",
+    SL: "Side Lower",
+    SU: "Side Upper"
+};
 
 function PassengerDetails() {
     const location = useLocation();
@@ -18,18 +26,21 @@ function PassengerDetails() {
         hold
     } = location.state || {};
 
-    const [remaining, setRemaining] = useState(
-        Number(hold?.holdMinutes || 10) * 60
-    );
+    const initialHoldSeconds =
+        Number(hold?.holdMinutes || 10) * 60;
 
-    const [passengers, setPassengers] = useState(() =>
-        (seats || []).map(seat => ({
-            name: "",
-            age: "",
-            gender: "",
-            seatId: seat.seat_id
-        }))
-    );
+    const [remaining, setRemaining] =
+        useState(initialHoldSeconds);
+
+    const [passengers, setPassengers] =
+        useState(() =>
+            (seats || []).map(seat => ({
+                name: "",
+                age: "",
+                gender: "",
+                seatId: seat.seat_id
+            }))
+        );
 
     const [error, setError] = useState("");
 
@@ -40,12 +51,33 @@ function PassengerDetails() {
 
         const timer = setInterval(() => {
             setRemaining(previous =>
-                previous > 0 ? previous - 1 : 0
+                previous > 0
+                    ? previous - 1
+                    : 0
             );
         }, 1000);
 
-        return () => clearInterval(timer);
+        return () =>
+            clearInterval(timer);
     }, [hold]);
+
+    const completedPassengers =
+        useMemo(
+            () =>
+                passengers.filter(
+                    passenger =>
+                        passenger.name.trim() &&
+                        passenger.age &&
+                        Number(
+                            passenger.age
+                        ) > 0 &&
+                        Number(
+                            passenger.age
+                        ) <= 120 &&
+                        passenger.gender
+                ).length,
+            [passengers]
+        );
 
     if (
         !search ||
@@ -55,18 +87,43 @@ function PassengerDetails() {
         !seats ||
         !hold
     ) {
-        return <Navigate to="/search" replace />;
+        return (
+            <Navigate
+                to="/search"
+                replace
+            />
+        );
     }
 
-    const minutes = Math.floor(remaining / 60);
-    const seconds = remaining % 60;
+    const minutes =
+        Math.floor(remaining / 60);
+
+    const seconds =
+        remaining % 60;
 
     const formattedTime =
         `${String(minutes).padStart(2, "0")}:` +
         `${String(seconds).padStart(2, "0")}`;
 
+    const fareAmount =
+        Number(fare.amount);
+
     const total =
-        Number(fare.amount) * passengers.length;
+        fareAmount *
+        passengers.length;
+
+    const holdPercent =
+        initialHoldSeconds > 0
+            ? Math.max(
+                  0,
+                  Math.min(
+                      100,
+                      (remaining /
+                          initialHoldSeconds) *
+                          100
+                  )
+              )
+            : 0;
 
     const handleChange = (
         index,
@@ -76,63 +133,77 @@ function PassengerDetails() {
         setError("");
 
         setPassengers(previous =>
-            previous.map((passenger, i) =>
-                i === index
-                    ? {
-                          ...passenger,
-                          [field]: value
-                      }
-                    : passenger
+            previous.map(
+                (passenger, i) =>
+                    i === index
+                        ? {
+                              ...passenger,
+                              [field]:
+                                  value
+                          }
+                        : passenger
             )
         );
     };
 
     const handleContinue = event => {
         event.preventDefault();
-
         setError("");
 
         if (remaining <= 0) {
             setError(
-                "Seat hold has expired. Select your seats again."
+                "Seat hold has expired. Return to seat selection and choose your seats again."
             );
             return;
         }
 
-        const invalid = passengers.some(
-            passenger =>
-                !passenger.name.trim() ||
-                !passenger.age ||
-                Number(passenger.age) <= 0 ||
-                Number(passenger.age) > 120 ||
-                !passenger.gender
-        );
+        const invalid =
+            passengers.some(
+                passenger =>
+                    !passenger.name.trim() ||
+                    !passenger.age ||
+                    Number(
+                        passenger.age
+                    ) <= 0 ||
+                    Number(
+                        passenger.age
+                    ) > 120 ||
+                    !passenger.gender
+            );
 
         if (invalid) {
             setError(
-                "Complete all passenger details before continuing."
+                "Complete the name, age and gender for every passenger before continuing."
             );
             return;
         }
 
-        navigate("/booking-review", {
-            state: {
-                search,
-                journey,
-                classType,
-                fare,
-                seats,
-                hold,
-                passengers: passengers.map(
-                    passenger => ({
-                        ...passenger,
-                        name: passenger.name.trim(),
-                        age: Number(passenger.age)
-                    })
-                ),
-                remaining
+        navigate(
+            "/booking-review",
+            {
+                state: {
+                    search,
+                    journey,
+                    classType,
+                    fare,
+                    seats,
+                    hold,
+                    passengers:
+                        passengers.map(
+                            passenger => ({
+                                ...passenger,
+                                name:
+                                    passenger.name.trim(),
+                                age:
+                                    Number(
+                                        passenger.age
+                                    )
+                            })
+                        ),
+                    remaining
+                }
             }
-        });
+        );
     };
 
     return (
@@ -144,14 +215,20 @@ function PassengerDetails() {
 
                 <div className="passenger-title-row">
                     <div>
-                        <h1>Who's travelling?</h1>
+                        <h1>
+                            Who's travelling?
+                        </h1>
 
                         <p>
-                            {journey.train_number}
+                            {
+                                journey.train_number
+                            }
                             {" • "}
                             {search.source}
                             {" → "}
-                            {search.destination}
+                            {
+                                search.destination
+                            }
                             {" • "}
                             {classType}
                         </p>
@@ -164,51 +241,197 @@ function PassengerDetails() {
                                 : ""
                         }`}
                     >
-                        <span>SEAT HOLD</span>
-                        <strong>{formattedTime}</strong>
+                        <span>
+                            SEAT HOLD
+                        </span>
+
+                        <strong>
+                            {formattedTime}
+                        </strong>
+
+                        <small>
+                            {remaining > 0
+                                ? "Complete before timer expires"
+                                : "Hold expired"}
+                        </small>
                     </div>
+                </div>
+
+                <div className="passenger-hold-progress">
+                    <span
+                        style={{
+                            width:
+                                `${holdPercent}%`
+                        }}
+                    />
                 </div>
             </section>
 
+            <div className="booking-progress">
+                <div className="booking-progress-step booking-progress-complete">
+                    <span>1</span>
+                    <strong>Seats</strong>
+                </div>
+
+                <div className="booking-progress-line booking-progress-line-complete" />
+
+                <div className="booking-progress-step booking-progress-active">
+                    <span>2</span>
+                    <strong>
+                        Passengers
+                    </strong>
+                </div>
+
+                <div className="booking-progress-line" />
+
+                <div className="booking-progress-step">
+                    <span>3</span>
+                    <strong>Review</strong>
+                </div>
+
+                <div className="booking-progress-line" />
+
+                <div className="booking-progress-step">
+                    <span>4</span>
+                    <strong>Payment</strong>
+                </div>
+            </div>
+
             <form
                 className="passenger-form"
-                onSubmit={handleContinue}
+                onSubmit={
+                    handleContinue
+                }
             >
                 <div className="passenger-layout">
                     <div className="passenger-form-list">
+                        <div className="passenger-section-intro">
+                            <div>
+                                <span>
+                                    TRAVELLERS
+                                </span>
+
+                                <h2>
+                                    Enter passenger details
+                                </h2>
+
+                                <p>
+                                    Each passenger is
+                                    assigned to the seat
+                                    selected in the
+                                    previous step.
+                                </p>
+                            </div>
+
+                            <strong>
+                                {
+                                    completedPassengers
+                                }
+                                /
+                                {
+                                    passengers.length
+                                }{" "}
+                                complete
+                            </strong>
+                        </div>
+
                         {passengers.map(
-                            (passenger, index) => {
+                            (
+                                passenger,
+                                index
+                            ) => {
                                 const seat =
+                                    seats.find(
+                                        item =>
+                                            item.seat_id ===
+                                            passenger.seatId
+                                    ) ||
                                     seats[index];
+
+                                const complete =
+                                    Boolean(
+                                        passenger.name.trim() &&
+                                        passenger.age &&
+                                        Number(
+                                            passenger.age
+                                        ) > 0 &&
+                                        Number(
+                                            passenger.age
+                                        ) <= 120 &&
+                                        passenger.gender
+                                    );
 
                                 return (
                                     <section
-                                        className="content-card passenger-card"
-                                        key={seat.seat_id}
+                                        className={`content-card passenger-card ${
+                                            complete
+                                                ? "passenger-card-complete"
+                                                : ""
+                                        }`}
+                                        key={
+                                            passenger.seatId
+                                        }
                                     >
                                         <div className="passenger-heading">
-                                            <div>
-                                                <span className="passenger-number">
-                                                    PASSENGER{" "}
-                                                    {index + 1}
+                                            <div className="passenger-heading-main">
+                                                <span className="passenger-index">
+                                                    {index +
+                                                        1}
                                                 </span>
 
-                                                <h2>
-                                                    Traveller details
-                                                </h2>
+                                                <div>
+                                                    <span className="passenger-number">
+                                                        PASSENGER{" "}
+                                                        {index +
+                                                            1}
+                                                    </span>
+
+                                                    <h2>
+                                                        Traveller
+                                                        details
+                                                    </h2>
+                                                </div>
                                             </div>
 
                                             <div className="passenger-seat-badge">
                                                 <span>
-                                                    {seat.berth_type}
+                                                    {BERTH_NAMES[
+                                                        seat?.berth_type
+                                                    ] ||
+                                                        seat?.berth_type ||
+                                                        "Seat"}
                                                 </span>
 
                                                 <strong>
-                                                    {seat.coach_number}
+                                                    {seat?.coach_number ||
+                                                        "—"}
                                                     {" / "}
-                                                    {seat.seat_number}
+                                                    {seat?.seat_number ||
+                                                        "—"}
                                                 </strong>
                                             </div>
+                                        </div>
+
+                                        <div className="passenger-assignment">
+                                            <span>
+                                                Assigned
+                                                seat
+                                            </span>
+
+                                            <strong>
+                                                Coach{" "}
+                                                {seat?.coach_number ||
+                                                    "—"}{" "}
+                                                • Seat{" "}
+                                                {seat?.seat_number ||
+                                                    "—"}{" "}
+                                                •{" "}
+                                                {BERTH_NAMES[
+                                                    seat?.berth_type
+                                                ] ||
+                                                    seat?.berth_type ||
+                                                    "—"}
+                                            </strong>
                                         </div>
 
                                         <div className="passenger-grid">
@@ -216,13 +439,15 @@ function PassengerDetails() {
                                                 <label
                                                     htmlFor={`passenger-name-${index}`}
                                                 >
-                                                    Full name
+                                                    Full
+                                                    name
                                                 </label>
 
                                                 <input
                                                     id={`passenger-name-${index}`}
                                                     type="text"
                                                     autoComplete="name"
+                                                    maxLength="100"
                                                     placeholder="Enter passenger name"
                                                     value={
                                                         passenger.name
@@ -294,7 +519,8 @@ function PassengerDetails() {
                                                     required
                                                 >
                                                     <option value="">
-                                                        Select gender
+                                                        Select
+                                                        gender
                                                     </option>
 
                                                     <option value="MALE">
@@ -310,6 +536,20 @@ function PassengerDetails() {
                                                     </option>
                                                 </select>
                                             </div>
+                                        </div>
+
+                                        <div className="passenger-card-status">
+                                            <span
+                                                className={
+                                                    complete
+                                                        ? "passenger-status-complete"
+                                                        : ""
+                                                }
+                                            >
+                                                {complete
+                                                    ? "Details complete"
+                                                    : "Complete all required fields"}
+                                            </span>
                                         </div>
                                     </section>
                                 );
@@ -328,85 +568,185 @@ function PassengerDetails() {
 
                     <aside className="passenger-summary-card">
                         <div className="passenger-summary-header">
-                            <span>JOURNEY SUMMARY</span>
+                            <span>
+                                JOURNEY SUMMARY
+                            </span>
 
                             <h2>
-                                {search.source}
+                                {
+                                    search.source
+                                }
                                 {" → "}
-                                {search.destination}
+                                {
+                                    search.destination
+                                }
                             </h2>
                         </div>
 
                         <div className="passenger-summary-train">
-                            <span>Train</span>
+                            <span>
+                                Train
+                            </span>
 
                             <strong>
-                                {journey.train_number}
+                                {
+                                    journey.train_number
+                                }
                             </strong>
 
                             <small>
-                                {journey.train_name}
+                                {
+                                    journey.train_name
+                                }
                             </small>
                         </div>
 
                         <div className="passenger-summary-grid">
                             <div>
-                                <span>Class</span>
-                                <strong>{classType}</strong>
+                                <span>
+                                    Class
+                                </span>
+
+                                <strong>
+                                    {
+                                        classType
+                                    }
+                                </strong>
                             </div>
 
                             <div>
-                                <span>Passengers</span>
+                                <span>
+                                    Passengers
+                                </span>
+
                                 <strong>
-                                    {passengers.length}
+                                    {
+                                        passengers.length
+                                    }
                                 </strong>
                             </div>
                         </div>
 
                         <div className="passenger-selected-seats">
-                            <span>Seats</span>
+                            <span>
+                                Seat assignments
+                            </span>
+
+                            <div className="passenger-seat-list">
+                                {seats.map(
+                                    (
+                                        seat,
+                                        index
+                                    ) => (
+                                        <article
+                                            key={
+                                                seat.seat_id
+                                            }
+                                        >
+                                            <div>
+                                                <span>
+                                                    Passenger{" "}
+                                                    {index +
+                                                        1}
+                                                </span>
+
+                                                <strong>
+                                                    {
+                                                        seat.coach_number
+                                                    }
+                                                    {" / "}
+                                                    {
+                                                        seat.seat_number
+                                                    }
+                                                </strong>
+                                            </div>
+
+                                            <small>
+                                                {BERTH_NAMES[
+                                                    seat.berth_type
+                                                ] ||
+                                                    seat.berth_type}
+                                            </small>
+                                        </article>
+                                    )
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="passenger-fare-breakdown">
+                            <div>
+                                <span>
+                                    Fare per
+                                    passenger
+                                </span>
+
+                                <strong>
+                                    ₹
+                                    {fareAmount.toLocaleString(
+                                        "en-IN",
+                                        {
+                                            minimumFractionDigits:
+                                                2,
+                                            maximumFractionDigits:
+                                                2
+                                        }
+                                    )}
+                                </strong>
+                            </div>
 
                             <div>
-                                {seats.map(seat => (
-                                    <strong
-                                        key={seat.seat_id}
-                                    >
-                                        {seat.coach_number}
-                                        {" / "}
-                                        {seat.seat_number}
-                                    </strong>
-                                ))}
+                                <span>
+                                    Passengers
+                                </span>
+
+                                <strong>
+                                    ×{" "}
+                                    {
+                                        passengers.length
+                                    }
+                                </strong>
                             </div>
                         </div>
 
                         <div className="passenger-fare-row">
                             <span>
-                                ₹
-                                {Number(
-                                    fare.amount
-                                ).toFixed(2)}
-                                {" × "}
-                                {passengers.length}
+                                Total fare
                             </span>
 
                             <strong>
-                                ₹{total.toFixed(2)}
+                                ₹
+                                {total.toLocaleString(
+                                    "en-IN",
+                                    {
+                                        minimumFractionDigits:
+                                            2,
+                                        maximumFractionDigits:
+                                            2
+                                    }
+                                )}
                             </strong>
                         </div>
 
                         <button
                             className="primary-button passenger-continue-button"
-                            disabled={remaining <= 0}
+                            disabled={
+                                remaining <= 0
+                            }
                             type="submit"
                         >
                             {remaining <= 0
                                 ? "Seat hold expired"
-                                : "Review booking"}
+                                : completedPassengers ===
+                                    passengers.length
+                                  ? "Review booking"
+                                  : `Complete passengers (${completedPassengers}/${passengers.length})`}
                         </button>
 
                         <p className="passenger-summary-note">
-                            Check passenger names carefully
-                            before proceeding to payment.
+                            Passenger names
+                            should match the
+                            traveller details
+                            used for the journey.
                         </p>
                     </aside>
                 </div>
