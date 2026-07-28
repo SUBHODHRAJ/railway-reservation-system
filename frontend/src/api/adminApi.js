@@ -15,3 +15,16 @@ export const getAdminBookings = () => {
 export const getAdminTrains = () => {
     return api.get("/admin/trains");
 };
+export const getAdminJourneys = () => {
+    return api.get("/admin/journeys");
+};
+
+export const updateAdminJourneyStatus = (
+    journeyId,
+    status
+) => {
+    return api.patch(
+        `/admin/journeys/${journeyId}/status`,
+        { status }
+    );
+};

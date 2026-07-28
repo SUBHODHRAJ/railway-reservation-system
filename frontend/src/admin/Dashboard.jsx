@@ -35,6 +35,7 @@ function Dashboard() {
                     className="loading-spinner"
                     aria-hidden="true"
                 />
+
                 <p>Loading dashboard...</p>
             </main>
         );
@@ -94,32 +95,32 @@ function Dashboard() {
                     >
                         <Stat
                             label="Users"
-                            value={data.users}
+                            value={data?.users}
                             description="Registered accounts"
                         />
 
                         <Stat
                             label="Trains"
-                            value={data.trains}
+                            value={data?.trains}
                             description="Railway services"
                         />
 
                         <Stat
                             label="Journeys"
-                            value={data.journeys}
+                            value={data?.journeys}
                             description="Scheduled journeys"
                         />
 
                         <Stat
                             label="Bookings"
-                            value={data.bookings}
+                            value={data?.bookings}
                             description="Total reservations"
                         />
 
                         <Stat
                             label="Confirmed"
                             value={
-                                data.confirmedBookings
+                                data?.confirmedBookings
                             }
                             description={`${confirmationRate}% confirmation rate`}
                         />
@@ -127,7 +128,7 @@ function Dashboard() {
                         <Stat
                             label="Revenue"
                             value={`₹${Number(
-                                data.revenue || 0
+                                data?.revenue || 0
                             ).toLocaleString(
                                 "en-IN",
                                 {
@@ -170,6 +171,13 @@ function Dashboard() {
                                 title="Trains"
                                 description="Review train services and railway information."
                                 action="Manage trains"
+                            />
+
+                            <AdminLink
+                                to="/admin/journeys"
+                                title="Journeys"
+                                description="Review scheduled journeys, seat inventory and operational status."
+                                action="Manage journeys"
                             />
 
                             <AdminLink

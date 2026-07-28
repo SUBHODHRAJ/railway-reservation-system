@@ -148,10 +148,143 @@ const getTrains = async (req, res) => {
         });
     }
 };
+const getJourneys = async (req, res) => {
+    try {
+        const [journeys] = await db.query(
+            `SELECT
+                j.id,
+                j.journey_date,
+                j.status,
+                j.created_at,
+                t.id AS train_id,
+                t.train_number,
+                t.train_name,
+                COUNT(DISTINCT sa.seat_id) AS total_seats,
+                SUM(
+                    CASE
+                        WHEN sa.status = 'AVAILABLE'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS available_seats,
+                COUNT(DISTINCT b.id) AS bookings
+             FROM journeys j
+             JOIN trains t
+                ON t.id = j.train_id
+             LEFT JOIN seat_availability sa
+                ON sa.journey_id = j.id
+             LEFT JOIN bookings b
+                ON b.journey_id = j.id
+             GROUP BY
+                j.id,
+                j.journey_date,
+                j.status,
+                j.created_at,
+                t.id,
+                t.train_number,
+                t.train_name
+             ORDER BY
+                j.journey_date DESC,
+                t.train_number`
+        );
 
+        res.json(
+            journeys.map(journey => ({
+                ...journey,
+                total_seats:
+                    Number(
+                        journey.total_seats || 0
+                    ),
+                available_seats:
+                    Number(
+                        journey.available_seats || 0
+                    ),
+                bookings:
+                    Number(
+                        journey.bookings || 0
+                    )
+            }))
+        );
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            message: "Server error"
+        });
+    }
+};
+
+const updateJourneyStatus = async (
+    req,
+    res
+) => {
+    try {
+        const journeyId =
+            Number(req.params.id);
+
+        const status = req.body.status;
+
+        const [journeys] = await db.query(
+            `SELECT id, status
+             FROM journeys
+             WHERE id = ?
+             LIMIT 1`,
+            [journeyId]
+        );
+
+        if (journeys.length === 0) {
+            return res.status(404).json({
+                message: "Journey not found"
+            });
+        }
+
+        const currentStatus =
+            journeys[0].status;
+
+        if (currentStatus === status) {
+            return res.json({
+                message:
+                    "Journey status unchanged",
+                journeyId,
+                status
+            });
+        }
+
+        if (
+            currentStatus === "COMPLETED"
+        ) {
+            return res.status(409).json({
+                message:
+                    "Completed journeys cannot be modified"
+            });
+        }
+
+        await db.query(
+            `UPDATE journeys
+             SET status = ?
+             WHERE id = ?`,
+            [status, journeyId]
+        );
+
+        res.json({
+            message:
+                "Journey status updated successfully",
+            journeyId,
+            status
+        });
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            message: "Server error"
+        });
+    }
+};
 module.exports = {
     dashboard,
     getUsers,
     getBookings,
-    getTrains
+    getTrains,
+    getJourneys,
+    updateJourneyStatus
 };

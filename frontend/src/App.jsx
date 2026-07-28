@@ -15,7 +15,7 @@ import AdminRoute from "./components/AdminRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyOtp from "./pages/VerifyOtp";
-
+import AdminJourneys from "./admin/Journeys";
 import Search from "./pages/Search";
 import SearchResults from "./pages/SearchResults";
 import Journey from "./pages/Journey";
@@ -178,6 +178,14 @@ function App() {
                         </VerifiedRoute>
                     }
                 />
+                                <Route
+                    path="/admin/journeys"
+                    element={
+                        <AdminRoute>
+                            <AdminJourneys />
+                        </AdminRoute>
+                    }
+                />
 
                 <Route
                     path="/my-bookings"
@@ -237,6 +245,14 @@ function App() {
                     element={
                         <AdminRoute>
                             <AdminTrains />
+                        </AdminRoute>
+                    }
+                />
+                <Route
+                    path="/admin/journeys"
+                    element={
+                        <AdminRoute>
+                            <AdminJourneys />
                         </AdminRoute>
                     }
                 />

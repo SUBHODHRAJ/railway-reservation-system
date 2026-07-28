@@ -103,68 +103,74 @@ function Navbar() {
                                 className="navbar-links"
                                 aria-label="Main navigation"
                             >
-                                {user.role === "ADMIN" ? (
-                                    <>
-                                        <NavLink
-                                            to="/admin/dashboard"
-                                            className={getNavClass}
-                                        >
-                                            Dashboard
-                                        </NavLink>
+                    {user.role === "ADMIN" ? (
+                        <>
+                            <NavLink
+                                to="/admin/dashboard"
+                                className={getNavClass}
+                            >
+                                Dashboard
+                            </NavLink>
 
-                                        <NavLink
-                                            to="/admin/users"
-                                            className={getNavClass}
-                                        >
-                                            Users
-                                        </NavLink>
+                            <NavLink
+                                to="/admin/users"
+                                className={getNavClass}
+                            >
+                                Users
+                            </NavLink>
 
-                                        <NavLink
-                                            to="/admin/trains"
-                                            className={getNavClass}
-                                        >
-                                            Trains
-                                        </NavLink>
+                            <NavLink
+                                to="/admin/trains"
+                                className={getNavClass}
+                            >
+                                Trains
+                            </NavLink>
 
-                                        <NavLink
-                                            to="/admin/bookings"
-                                            className={getNavClass}
-                                        >
-                                            Bookings
-                                        </NavLink>
-                                    </>
-                                ) : user.emailVerified ? (
-                                    <>
-                                        <NavLink
-                                            to="/search"
-                                            className={getNavClass}
-                                        >
-                                            Search trains
-                                        </NavLink>
+                            <NavLink
+                                to="/admin/journeys"
+                                className={getNavClass}
+                            >
+                                Journeys
+                            </NavLink>
 
-                                        <NavLink
-                                            to="/pnr"
-                                            className={getNavClass}
-                                        >
-                                            PNR Status
-                                        </NavLink>
+                            <NavLink
+                                to="/admin/bookings"
+                                className={getNavClass}
+                            >
+                                Bookings
+                            </NavLink>
+                        </>
+                    ) : user.emailVerified ? (
+                        <>
+                            <NavLink
+                                to="/search"
+                                className={getNavClass}
+                            >
+                                Search trains
+                            </NavLink>
 
-                                        <NavLink
-                                            to="/my-bookings"
-                                            className={getNavClass}
-                                        >
-                                            My Bookings
-                                        </NavLink>
-                                    </>
-                                ) : (
-                                    <NavLink
-                                        to="/verify-email"
-                                        className={getNavClass}
-                                    >
-                                        Verify Email
-                                    </NavLink>
-                                )}
-                            </nav>
+                            <NavLink
+                                to="/pnr"
+                                className={getNavClass}
+                            >
+                                PNR Status
+                            </NavLink>
+
+                            <NavLink
+                                to="/my-bookings"
+                                className={getNavClass}
+                            >
+                                My Bookings
+                            </NavLink>
+                        </>
+                    ) : (
+                        <NavLink
+                            to="/verify-email"
+                            className={getNavClass}
+                        >
+                            Verify Email
+                        </NavLink>
+                    )}                            </nav>
 
                             <div className="navbar-account">
                                 <button
