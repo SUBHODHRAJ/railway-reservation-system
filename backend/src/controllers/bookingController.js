@@ -80,23 +80,51 @@ const holdSeats = async (req, res) => {
 
         const placeholders = uniqueSeatIds.map(() => "?").join(",");
 
+        const [journeys] = await connection.query(
+            `SELECT id, train_id, status
+            FROM journeys
+            WHERE id = ?
+            FOR UPDATE`,
+            [journeyId]
+        );
+
+        if (journeys.length === 0) {
+            await connection.rollback();
+
+            return res.status(404).json({
+                message: "Journey not found"
+            });
+        }
+
+        if (journeys[0].status !== "SCHEDULED") {
+            await connection.rollback();
+
+            return res.status(409).json({
+                message: "Journey is not available"
+            });
+        }
+
         const [seats] = await connection.query(
             `SELECT
                 sa.id,
                 sa.seat_id,
                 sa.status,
                 sa.held_by
-             FROM seat_availability sa
-             JOIN seats s ON s.id = sa.seat_id
-             JOIN coaches c ON c.id = s.coach_id
-             JOIN journeys j ON j.id = sa.journey_id
-             WHERE sa.journey_id = ?
-               AND sa.seat_id IN (${placeholders})
-               AND c.train_id = j.train_id
-             FOR UPDATE`,
-            [journeyId, ...uniqueSeatIds]
+            FROM seat_availability sa
+            JOIN seats s
+                ON s.id = sa.seat_id
+            JOIN coaches c
+                ON c.id = s.coach_id
+            WHERE sa.journey_id = ?
+            AND sa.seat_id IN (${placeholders})
+            AND c.train_id = ?
+            FOR UPDATE`,
+            [
+                journeyId,
+                ...uniqueSeatIds,
+                journeys[0].train_id
+            ]
         );
-
         if (seats.length !== uniqueSeatIds.length) {
             await connection.rollback();
 
@@ -215,7 +243,7 @@ const createBooking = async (req, res) => {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        await releaseExpiredHolds(connection, journeyId);
+
 
         const [journeys] = await connection.query(
             `SELECT j.id, j.train_id, j.status
@@ -236,6 +264,7 @@ const createBooking = async (req, res) => {
             });
         }
 
+        await releaseExpiredHolds(connection, journeyId);
         const trainId = journeys[0].train_id;
 
         const [route] = await connection.query(

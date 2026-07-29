@@ -140,19 +140,22 @@ const completePayment = async (req, res) => {
                 p.status AS payment_status,
                 b.user_id,
                 b.journey_id,
-                b.status AS booking_status
+                b.status AS booking_status,
+                j.status AS journey_status
 
-             FROM payments p
+            FROM payments p
 
-             JOIN bookings b
+            JOIN bookings b
                 ON b.id = p.booking_id
 
-             WHERE p.id = ?
+            JOIN journeys j
+                ON j.id = b.journey_id
 
-             FOR UPDATE`,
+            WHERE p.id = ?
+
+            FOR UPDATE`,
             [paymentId]
         );
-
         if (payments.length === 0) {
             await connection.rollback();
 
@@ -179,11 +182,55 @@ const completePayment = async (req, res) => {
             });
         }
 
-        if (payment.booking_status !== "PENDING") {
-            await connection.rollback();
+            if (payment.booking_status !== "PENDING") {
+                await connection.rollback();
 
             return res.status(400).json({
                 message: `Booking is ${payment.booking_status}`
+            });
+        }
+
+        if (payment.journey_status !== "SCHEDULED") {
+            await connection.query(
+                `UPDATE payments
+                 SET status = 'FAILED'
+                 WHERE id = ?
+                   AND status = 'CREATED'`,
+                [paymentId]
+            );
+
+            await connection.query(
+                `UPDATE bookings
+                 SET status = 'PAYMENT_FAILED'
+                 WHERE id = ?
+                   AND status = 'PENDING'`,
+                [payment.booking_id]
+            );
+
+            await connection.query(
+                `UPDATE seat_availability sa
+                 JOIN booking_seats bs
+                    ON bs.journey_id = sa.journey_id
+                   AND bs.seat_id = sa.seat_id
+
+                 SET sa.status = 'AVAILABLE',
+                     sa.held_by = NULL,
+                     sa.hold_expires_at = NULL
+
+                 WHERE bs.booking_id = ?
+                   AND sa.status = 'HELD'
+                   AND sa.held_by = ?`,
+                [
+                    payment.booking_id,
+                    req.user.id
+                ]
+            );
+
+            await connection.commit();
+
+            return res.status(409).json({
+                message: "Journey is no longer available",
+                bookingStatus: "PAYMENT_FAILED"
             });
         }
 

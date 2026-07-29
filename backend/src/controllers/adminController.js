@@ -213,71 +213,269 @@ const getJourneys = async (req, res) => {
         });
     }
 };
+const updateJourneyStatus = async (req, res) => {
+    let connection;
 
-const updateJourneyStatus = async (
-    req,
-    res
-) => {
     try {
-        const journeyId =
-            Number(req.params.id);
-
+        const journeyId = Number(req.params.id);
         const status = req.body.status;
 
-        const [journeys] = await db.query(
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        const [journeys] = await connection.query(
             `SELECT id, status
              FROM journeys
              WHERE id = ?
-             LIMIT 1`,
+             FOR UPDATE`,
             [journeyId]
         );
 
         if (journeys.length === 0) {
+            await connection.rollback();
+
             return res.status(404).json({
                 message: "Journey not found"
             });
         }
 
-        const currentStatus =
-            journeys[0].status;
+        const currentStatus = journeys[0].status;
 
         if (currentStatus === status) {
+            await connection.rollback();
+
             return res.json({
-                message:
-                    "Journey status unchanged",
+                message: "Journey status unchanged",
                 journeyId,
                 status
             });
         }
 
         if (
+            currentStatus === "CANCELLED" ||
             currentStatus === "COMPLETED"
         ) {
+            await connection.rollback();
+
             return res.status(409).json({
                 message:
-                    "Completed journeys cannot be modified"
+                    `${currentStatus} journeys cannot be modified`
             });
         }
 
-        await db.query(
-            `UPDATE journeys
-             SET status = ?
-             WHERE id = ?`,
-            [status, journeyId]
-        );
+        if (status === "SCHEDULED") {
+            await connection.rollback();
 
-        res.json({
-            message:
-                "Journey status updated successfully",
-            journeyId,
-            status
+            return res.status(409).json({
+                message:
+                    "Journey is already in its active lifecycle"
+            });
+        }
+
+        if (status === "COMPLETED") {
+            const [activeBookings] =
+                await connection.query(
+                    `SELECT COUNT(*) AS count
+                     FROM bookings
+                     WHERE journey_id = ?
+                       AND status = 'PENDING'`,
+                    [journeyId]
+                );
+
+            if (
+                Number(activeBookings[0].count) > 0
+            ) {
+                await connection.rollback();
+
+                return res.status(409).json({
+                    message:
+                        "Journey cannot be completed while pending bookings exist"
+                });
+            }
+
+            await connection.query(
+                `UPDATE journeys
+                 SET status = 'COMPLETED'
+                 WHERE id = ?`,
+                [journeyId]
+            );
+
+            await connection.commit();
+
+            return res.json({
+                message:
+                    "Journey marked as completed",
+                journeyId,
+                status: "COMPLETED"
+            });
+        }
+
+        if (status === "CANCELLED") {
+            /*
+             * Lock affected bookings before changing
+             * booking/payment/inventory state.
+             */
+            const [affectedBookings] =
+                await connection.query(
+                    `SELECT id, status
+                     FROM bookings
+                     WHERE journey_id = ?
+                       AND status IN (
+                           'PENDING',
+                           'CONFIRMED',
+                           'PAYMENT_FAILED'
+                       )
+                     FOR UPDATE`,
+                    [journeyId]
+                );
+
+            const bookingIds =
+                affectedBookings.map(
+                    booking => booking.id
+                );
+
+            let refundedPayments = 0;
+            let failedPayments = 0;
+
+            if (bookingIds.length > 0) {
+                const placeholders =
+                    bookingIds
+                        .map(() => "?")
+                        .join(",");
+
+                const [successfulPayments] =
+                    await connection.query(
+                        `SELECT id
+                         FROM payments
+                         WHERE booking_id IN (${placeholders})
+                           AND status = 'SUCCESS'
+                         FOR UPDATE`,
+                        bookingIds
+                    );
+
+                const [createdPayments] =
+                    await connection.query(
+                        `SELECT id
+                         FROM payments
+                         WHERE booking_id IN (${placeholders})
+                           AND status = 'CREATED'
+                         FOR UPDATE`,
+                        bookingIds
+                    );
+
+                refundedPayments =
+                    successfulPayments.length;
+
+                failedPayments =
+                    createdPayments.length;
+
+                if (refundedPayments > 0) {
+                    const paymentIds =
+                        successfulPayments.map(
+                            payment => payment.id
+                        );
+
+                    const paymentPlaceholders =
+                        paymentIds
+                            .map(() => "?")
+                            .join(",");
+
+                    await connection.query(
+                        `UPDATE payments
+                         SET status = 'REFUNDED'
+                         WHERE id IN (${paymentPlaceholders})`,
+                        paymentIds
+                    );
+                }
+
+                if (failedPayments > 0) {
+                    const paymentIds =
+                        createdPayments.map(
+                            payment => payment.id
+                        );
+
+                    const paymentPlaceholders =
+                        paymentIds
+                            .map(() => "?")
+                            .join(",");
+
+                    await connection.query(
+                        `UPDATE payments
+                         SET status = 'FAILED'
+                         WHERE id IN (${paymentPlaceholders})`,
+                        paymentIds
+                    );
+                }
+
+                await connection.query(
+                    `UPDATE bookings
+                     SET status = 'CANCELLED'
+                     WHERE journey_id = ?
+                       AND status IN (
+                           'PENDING',
+                           'CONFIRMED',
+                           'PAYMENT_FAILED'
+                       )`,
+                    [journeyId]
+                );
+            }
+
+            /*
+             * A cancelled journey cannot have usable
+             * reservation inventory.
+             */
+            await connection.query(
+                `UPDATE seat_availability
+                 SET status = 'AVAILABLE',
+                     held_by = NULL,
+                     hold_expires_at = NULL
+                 WHERE journey_id = ?
+                   AND status IN ('HELD', 'BOOKED')`,
+                [journeyId]
+            );
+
+            await connection.query(
+                `UPDATE journeys
+                 SET status = 'CANCELLED'
+                 WHERE id = ?`,
+                [journeyId]
+            );
+
+            await connection.commit();
+
+            return res.json({
+                message:
+                    "Journey cancelled successfully",
+                journeyId,
+                status: "CANCELLED",
+                cancelledBookings:
+                    bookingIds.length,
+                refundedPayments,
+                failedPayments
+            });
+        }
+
+        await connection.rollback();
+
+        return res.status(400).json({
+            message: "Invalid journey status transition"
         });
     } catch (error) {
+        if (connection) {
+            try {
+                await connection.rollback();
+            } catch {}
+        }
+
         console.error(error);
 
         res.status(500).json({
             message: "Server error"
         });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
     }
 };
 module.exports = {
