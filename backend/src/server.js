@@ -1,5 +1,10 @@
 require("dotenv").config();
 const {
+    validateEnvironment
+} = require("./config/env");
+
+validateEnvironment();
+const {
     notFound,
     errorHandler
 } = require("./middleware/errorMiddleware");
@@ -94,10 +99,14 @@ app.get("/api/health", async (req, res) => {
         });
     }
 });
-
 const PORT = process.env.PORT || 5000;
+
 app.use(notFound);
 app.use(errorHandler);
+
+let cleanupTimer;
+let isShuttingDown = false;
+
 const runReservationCleanup = async () => {
     try {
         const result = await cleanupExpiredReservations();
@@ -118,15 +127,53 @@ const runReservationCleanup = async () => {
     }
 };
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 
     runReservationCleanup();
 
-    const cleanupTimer = setInterval(
+    cleanupTimer = setInterval(
         runReservationCleanup,
         60 * 1000
     );
 
     cleanupTimer.unref();
 });
+
+const shutdown = signal => {
+    if (isShuttingDown) {
+        return;
+    }
+
+    isShuttingDown = true;
+    console.log(`${signal} received. Shutting down...`);
+
+    if (cleanupTimer) {
+        clearInterval(cleanupTimer);
+    }
+
+    server.close(async error => {
+        if (error) {
+            console.error("HTTP server shutdown failed:", error);
+            process.exitCode = 1;
+        }
+
+        try {
+            await db.end();
+            console.log("Database pool closed");
+        } catch (dbError) {
+            console.error(
+                "Database pool shutdown failed:",
+                dbError
+            );
+            process.exitCode = 1;
+        }
+
+        if (process.exitCode) {
+            console.error("Shutdown completed with errors");
+        }
+    });
+};
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
