@@ -1,4 +1,7 @@
 const db = require("../config/db");
+const {
+    cleanupExpiredReservations
+} = require("../services/booking/reservationExpiryService");
 
 const getStations = async (req, res) => {
     try {
@@ -147,16 +150,7 @@ const getAvailability = async (req, res) => {
         const { id } = req.params;
 
         // Expired holds become available again.
-        await db.query(
-            `UPDATE seat_availability
-             SET status = 'AVAILABLE',
-                 held_by = NULL,
-                 hold_expires_at = NULL
-             WHERE journey_id = ?
-               AND status = 'HELD'
-               AND hold_expires_at < NOW()`,
-            [id]
-        );
+        await cleanupExpiredReservations(id);
 
         const [rows] = await db.query(
             `SELECT
@@ -207,16 +201,7 @@ const getSeats = async (req, res) => {
             });
         }
 
-        await db.query(
-            `UPDATE seat_availability
-             SET status = 'AVAILABLE',
-                 held_by = NULL,
-                 hold_expires_at = NULL
-             WHERE journey_id = ?
-               AND status = 'HELD'
-               AND hold_expires_at < NOW()`,
-            [id]
-        );
+        await cleanupExpiredReservations(id);
 
         const [seats] = await db.query(
             `SELECT

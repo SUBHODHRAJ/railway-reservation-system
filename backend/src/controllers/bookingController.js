@@ -1,56 +1,12 @@
 const db = require("../config/db");
+const {
+    releaseExpiredHolds
+} = require("../services/booking/reservationExpiryService");
 
 const HOLD_MINUTES = 10;
 
 const generatePNR = () => {
     return `TR${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
-};
-
-const releaseExpiredHolds = async (connection, journeyId) => {
-    const [expiredBookings] = await connection.query(
-        `SELECT DISTINCT b.id
-         FROM bookings b
-         JOIN booking_seats bs
-             ON bs.booking_id = b.id
-         JOIN seat_availability sa
-             ON sa.journey_id = bs.journey_id
-            AND sa.seat_id = bs.seat_id
-         WHERE b.journey_id = ?
-           AND b.status = 'PENDING'
-           AND sa.status = 'HELD'
-           AND sa.hold_expires_at < NOW()
-         FOR UPDATE`,
-        [journeyId]
-    );
-
-    for (const booking of expiredBookings) {
-        await connection.query(
-            `UPDATE payments
-             SET status = 'FAILED'
-             WHERE booking_id = ?
-               AND status = 'CREATED'`,
-            [booking.id]
-        );
-
-        await connection.query(
-            `UPDATE bookings
-             SET status = 'EXPIRED'
-             WHERE id = ?
-               AND status = 'PENDING'`,
-            [booking.id]
-        );
-    }
-
-    await connection.query(
-        `UPDATE seat_availability
-         SET status = 'AVAILABLE',
-             held_by = NULL,
-             hold_expires_at = NULL
-         WHERE journey_id = ?
-           AND status = 'HELD'
-           AND hold_expires_at < NOW()`,
-        [journeyId]
-    );
 };
 
 const holdSeats = async (req, res) => {

@@ -6,6 +6,9 @@ const {
 const express = require("express");
 const cors = require("cors");
 const db = require("./config/db");
+const {
+    cleanupExpiredReservations
+} = require("./services/booking/reservationExpiryService");
 const authRoutes = require("./routes/authRoutes");
 const railwayRoutes = require("./routes/railwayRoutes");
 const trainRoutes = require("./routes/trainRoutes");
@@ -95,6 +98,35 @@ app.get("/api/health", async (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.use(notFound);
 app.use(errorHandler);
+const runReservationCleanup = async () => {
+    try {
+        const result = await cleanupExpiredReservations();
+
+        if (
+            result.releasedSeats > 0 ||
+            result.expiredBookings > 0
+        ) {
+            console.log(
+                `Reservation cleanup: ${result.releasedSeats} seat(s) released, ${result.expiredBookings} booking(s) expired`
+            );
+        }
+    } catch (error) {
+        console.error(
+            "Reservation cleanup failed:",
+            error
+        );
+    }
+};
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+
+    runReservationCleanup();
+
+    const cleanupTimer = setInterval(
+        runReservationCleanup,
+        60 * 1000
+    );
+
+    cleanupTimer.unref();
 });
