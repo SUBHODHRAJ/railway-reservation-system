@@ -2,6 +2,9 @@ const db = require("../config/db");
 const {
     cleanupExpiredReservations
 } = require("../services/booking/reservationExpiryService");
+const {
+    provisionJourney
+} = require("../services/railway/journeyProvisioningService");
 
 const getStations = async (req, res) => {
     try {
@@ -178,11 +181,13 @@ const getAvailability = async (req, res) => {
 
              WHERE j.id = ?
 
-             GROUP BY c.class_type
-             ORDER BY FIELD(c.class_type, 'SL', '3A', '2A', '1A')`,
+            GROUP BY c.class_type
+            ORDER BY FIELD(
+                c.class_type,
+                '2S', 'SL', '3A', '2A', '1A', 'CC', 'EC'
+            )`,
             [id]
         );
-
         res.json(rows);
     } catch (error) {
         console.error(error);
@@ -294,12 +299,75 @@ const getFare = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+const provisionTrainJourney = async (req, res) => {
+    try {
+        const {
+            trainNumber,
+            journeyDate
+        } = req.body;
 
+        const result = await provisionJourney(
+            trainNumber,
+            journeyDate
+        );
+
+        if (
+            result.reason ===
+            "TRAIN_NOT_RUNNING"
+        ) {
+            return res.status(409).json({
+                message:
+                    "Train does not run on the selected date",
+                ...result
+            });
+        }
+
+        if (
+            result.reason ===
+            "JOURNEY_ALREADY_EXISTS"
+        ) {
+            return res.json({
+                provisioned: false,
+                existing: true,
+                trainId: result.trainId,
+                journeyId: result.journeyId,
+                journeyDate:
+                    result.journeyDate,
+                status:
+                    result.journeyStatus
+            });
+        }
+
+        return res.status(201).json({
+            provisioned: true,
+            existing: false,
+            trainId: result.trainId,
+            journeyId: result.journeyId,
+            journeyDate:
+                result.journeyDate,
+            inventory:
+                result.inventory,
+            fares:
+                result.fares
+        });
+    } catch (error) {
+        console.error(error);
+
+        res.status(
+            error.status || 500
+        ).json({
+            message:
+                error.message ||
+                "Unable to provision journey"
+        });
+    }
+};
 module.exports = {
     getStations,
     searchTrains,
     getJourney,
     getAvailability,
     getSeats,
-    getFare
+    getFare,
+    provisionTrainJourney
 };

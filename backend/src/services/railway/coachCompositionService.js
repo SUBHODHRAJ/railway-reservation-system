@@ -4,7 +4,12 @@ const CLASS_CONFIG = {
     A:  { classType: "2A", seats: 48 },
     H:  { classType: "1A", seats: 24 },
     HA: { classType: "1A", seats: 24 },
-    M:  { classType: "3A", seats: 64 }
+    M:  { classType: "3A", seats: 64 },
+
+    D:  { classType: "2S", seats: 108 },
+
+    C:  { classType: "CC", seats: 78 },
+    E:  { classType: "EC", seats: 52 }
 };
 
 const NON_RESERVABLE = new Set([

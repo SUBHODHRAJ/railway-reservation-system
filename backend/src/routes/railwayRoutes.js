@@ -1,14 +1,17 @@
 const express = require("express");
 const {
     param,
-    body
+    body,
+    query
 } = require("express-validator");
 const {
     getExternalTrain,
     importExternalTrain,
     createTrainInventory,
     syncExternalTrain,
-    generateTrainFares
+    generateTrainFares,
+    searchExternalTrains,
+    getExternalLiveStatus
 } = require("../controllers/railwayController");
 
 const {
@@ -32,6 +35,28 @@ const journeyDateValidation = [
         .isISO8601({ strict: true })
         .withMessage("journeyDate must be a valid date")
 ];
+router.get(
+    "/trains/search",
+    [
+        query("source")
+            .trim()
+            .matches(/^[A-Za-z0-9]{2,10}$/)
+            .withMessage("Invalid source station")
+            .toUpperCase(),
+
+        query("destination")
+            .trim()
+            .matches(/^[A-Za-z0-9]{2,10}$/)
+            .withMessage("Invalid destination station")
+            .toUpperCase(),
+
+        query("date")
+            .isISO8601({ strict: true })
+            .withMessage("Date must be YYYY-MM-DD")
+    ],
+    validate,
+    searchExternalTrains
+);
 router.get(
     "/trains/:trainNumber",
     trainNumberValidation,
@@ -66,7 +91,42 @@ router.patch(
     validate,
     syncExternalTrain
 );
+router.get(
+    "/search",
+    [
+        query("source")
+            .trim()
+            .matches(/^[A-Za-z0-9]{2,10}$/)
+            .withMessage("Invalid source station code")
+            .toUpperCase(),
 
+        query("destination")
+            .trim()
+            .matches(/^[A-Za-z0-9]{2,10}$/)
+            .withMessage("Invalid destination station code")
+            .toUpperCase(),
+
+        query("date")
+            .isISO8601({ strict: true })
+            .withMessage("Date must be YYYY-MM-DD")
+    ],
+    validate,
+    searchExternalTrains
+);
+
+router.get(
+    "/trains/:trainNumber/live",
+    [
+        ...trainNumberValidation,
+
+        query("date")
+            .optional()
+            .isISO8601({ strict: true })
+            .withMessage("Date must be YYYY-MM-DD")
+    ],
+    validate,
+    getExternalLiveStatus
+);
 router.post(
     "/trains/:trainNumber/fares/generate",
     authenticate,

@@ -57,7 +57,54 @@ const request = async (endpoint) => {
 const getTrain = async (trainNumber) => {
     return request(`/trains/${encodeURIComponent(trainNumber)}`);
 };
+const getTrainsBetween = async (
+    from,
+    to,
+    {
+        date = null,
+        live = false,
+        byCity = false
+    } = {}
+) => {
+    const params = new URLSearchParams();
 
+    if (date) {
+        params.set("date", date);
+    }
+
+    params.set("live", String(live));
+    params.set("byCity", String(byCity));
+
+    const query = params.toString();
+
+    return request(
+        `/trains/between/${encodeURIComponent(from)}/${encodeURIComponent(to)}${query ? `?${query}` : ""}`
+    );
+};
+
+const getLiveTrainStatus = async (
+    trainNumber,
+    date = null
+) => {
+    const params = new URLSearchParams({
+        haltsOnly: "true"
+    });
+
+    if (date) {
+        params.set("date", date);
+    }
+
+    return request(
+        `/trains/${encodeURIComponent(trainNumber)}/live?${params.toString()}`
+    );
+};
+
+const getStations = async () => {
+    return request("/lookup/stations");
+};
 module.exports = {
-    getTrain
+    getTrain,
+    getTrainsBetween,
+    getLiveTrainStatus,
+    getStations
 };

@@ -10,7 +10,10 @@ const BERTH_NAMES = {
     MB: "Middle Berth",
     UB: "Upper Berth",
     SL: "Side Lower",
-    SU: "Side Upper"
+    SU: "Side Upper",
+    WS: "Window Seat",
+    MS: "Middle Seat",
+    AS: "Aisle Seat"
 };
 
 function PassengerDetails() {

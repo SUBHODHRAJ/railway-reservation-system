@@ -37,6 +37,16 @@ const CLASS_INFO = {
         name: "AC First Class",
         description: "Premium air-conditioned accommodation",
         order: 4
+    },
+    CC: {
+        name: "AC Chair Car",
+        description: "Air-conditioned seated accommodation",
+        order: 5
+    },
+    EC: {
+        name: "Executive Chair Car",
+        description: "Premium air-conditioned seated accommodation",
+        order: 6
     }
 };
 

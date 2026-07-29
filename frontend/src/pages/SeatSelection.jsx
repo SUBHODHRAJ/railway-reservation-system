@@ -19,7 +19,10 @@ const BERTH_INFO = {
     MB: "Middle Berth",
     UB: "Upper Berth",
     SL: "Side Lower",
-    SU: "Side Upper"
+    SU: "Side Upper",
+    WS: "Window Seat",
+    MS: "Middle Seat",
+    AS: "Aisle Seat"
 };
 
 const BERTH_ORDER = [
@@ -27,7 +30,10 @@ const BERTH_ORDER = [
     "MB",
     "UB",
     "SL",
-    "SU"
+    "SU",
+    "WS",
+    "MS",
+    "AS"
 ];
 
 function SeatSelection() {

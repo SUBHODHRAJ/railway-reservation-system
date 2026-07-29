@@ -19,7 +19,29 @@ export const searchTrains = ({
         }
     });
 };
+export const searchExternalTrains = ({
+    source,
+    destination,
+    date
+}) => {
+    return api.get("/railway/trains/search", {
+        params: {
+            source,
+            destination,
+            date
+        }
+    });
+};
 
+export const provisionJourney = ({
+    trainNumber,
+    journeyDate
+}) => {
+    return api.post("/trains/provision", {
+        trainNumber,
+        journeyDate
+    });
+};
 export const getJourney = journeyId => {
     return api.get(`/trains/journeys/${journeyId}`);
 };

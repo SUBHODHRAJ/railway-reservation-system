@@ -106,7 +106,6 @@ router.post(
             .withMessage(
                 "Invalid destination station"
             ),
-
         body("classType")
             .trim()
             .notEmpty()
@@ -117,12 +116,13 @@ router.post(
                 "1A",
                 "2A",
                 "3A",
-                "SL"
+                "SL",
+                "CC",
+                "EC"
             ])
             .withMessage(
                 "Invalid class type"
             ),
-
         body("passengers")
             .isArray({ min: 1, max: 12 })
             .withMessage(

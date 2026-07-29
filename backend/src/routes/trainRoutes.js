@@ -1,12 +1,17 @@
 const express = require("express");
-const { query, param } = require("express-validator");
+const {
+    query,
+    param,
+    body
+} = require("express-validator");
 const {
     getStations,
     searchTrains,
     getJourney,
     getAvailability,
     getSeats,
-    getFare
+    getFare,
+    provisionTrainJourney
 } = require("../controllers/trainController");
 
 const validate = require("../middleware/validate");
@@ -34,6 +39,27 @@ router.get(
     ],
     validate,
     searchTrains
+);
+router.post(
+    "/provision",
+    [
+        body("trainNumber")
+            .trim()
+            .matches(/^\d{5}$/)
+            .withMessage(
+                "Train number must be 5 digits"
+            ),
+
+        body("journeyDate")
+            .isISO8601({
+                strict: true
+            })
+            .withMessage(
+                "Journey date must be YYYY-MM-DD"
+            )
+    ],
+    validate,
+    provisionTrainJourney
 );
 
 router.get(
@@ -66,7 +92,7 @@ router.get(
             .withMessage("Invalid journey ID"),
 
         query("classType")
-            .isIn(["SL", "3A", "2A", "1A"])
+    .isIn(["2S", "SL", "3A", "2A", "1A", "CC", "EC"])
             .withMessage("Invalid class type")
     ],
     validate,
@@ -95,7 +121,7 @@ router.get(
         query("classType")
             .trim()
             .toUpperCase()
-            .isIn(["SL", "3A", "2A", "1A"])
+            .isIn(["2S", "SL", "3A", "2A", "1A", "CC", "EC"])
             .withMessage("Invalid class type")
     ],
     validate,

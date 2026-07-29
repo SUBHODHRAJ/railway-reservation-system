@@ -5,18 +5,25 @@ const {
 } = require("./coachCompositionService");
 
 const berthPatterns = {
+    "2S": ["WS", "MS", "AS"],
     SL: ["LB", "MB", "UB", "LB", "MB", "UB", "SL", "SU"],
     "3A": ["LB", "MB", "UB", "LB", "MB", "UB", "SL", "SU"],
     "2A": ["LB", "UB", "LB", "UB", "SL", "SU"],
-    "1A": ["LB", "UB"]
+    "1A": ["LB", "UB"],
+    CC: ["WS", "MS", "AS"],
+    EC: ["WS", "AS"]
 };
-
-const createInventory = async (trainNumber, journeyDate) => {
+const createInventory = async (
+    trainNumber,
+    journeyDate,
+    trainData = null
+) => {
     let connection;
 
     try {
-        const externalTrain = await railwayService.getTrain(trainNumber);
-
+        const externalTrain =
+            trainData ||
+            await railwayService.getTrain(trainNumber);
         const composition = parseCoachComposition(
             externalTrain.coachPosition
         );
@@ -70,11 +77,29 @@ const createInventory = async (trainNumber, journeyDate) => {
             [trainId]
         );
 
-        if (coaches.length === 0) {
-            for (const coach of composition) {
-                const [coachResult] = await connection.query(
+                const existingCoachNumbers = new Set(
+            coaches.map(coach =>
+                coach.coach_number.toUpperCase()
+            )
+        );
+
+        for (const coach of composition) {
+            if (
+                existingCoachNumbers.has(
+                    coach.coachNumber
+                )
+            ) {
+                continue;
+            }
+
+            const [coachResult] =
+                await connection.query(
                     `INSERT INTO coaches
-                        (train_id, coach_number, class_type)
+                        (
+                            train_id,
+                            coach_number,
+                            class_type
+                        )
                      VALUES (?, ?, ?)`,
                     [
                         trainId,
@@ -83,38 +108,53 @@ const createInventory = async (trainNumber, journeyDate) => {
                     ]
                 );
 
-                const coachId = coachResult.insertId;
-                const pattern = berthPatterns[coach.classType];
+            const coachId =
+                coachResult.insertId;
 
-                for (
-                    let seatNumber = 1;
-                    seatNumber <= coach.seatCount;
-                    seatNumber++
-                ) {
-                    const berthType =
-                        pattern[(seatNumber - 1) % pattern.length];
+            const pattern =
+                berthPatterns[coach.classType];
 
-                    await connection.query(
-                        `INSERT INTO seats
-                            (coach_id, seat_number, berth_type)
-                         VALUES (?, ?, ?)`,
-                        [
-                            coachId,
-                            seatNumber,
-                            berthType
-                        ]
-                    );
-                }
+            for (
+                let seatNumber = 1;
+                seatNumber <= coach.seatCount;
+                seatNumber++
+            ) {
+                const berthType =
+                    pattern[
+                        (seatNumber - 1) %
+                        pattern.length
+                    ];
+
+                await connection.query(
+                    `INSERT INTO seats
+                        (
+                            coach_id,
+                            seat_number,
+                            berth_type
+                        )
+                     VALUES (?, ?, ?)`,
+                    [
+                        coachId,
+                        seatNumber,
+                        berthType
+                    ]
+                );
             }
 
-            [coaches] = await connection.query(
-                `SELECT id, coach_number, class_type
-                 FROM coaches
-                 WHERE train_id = ?`,
-                [trainId]
+            existingCoachNumbers.add(
+                coach.coachNumber
             );
         }
 
+        [coaches] = await connection.query(
+            `SELECT
+                id,
+                coach_number,
+                class_type
+             FROM coaches
+             WHERE train_id = ?`,
+            [trainId]
+        );
         const [journeyResult] = await connection.query(
             `INSERT INTO journeys
                 (train_id, journey_date)

@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 import {
     getStations,
-    searchTrains
+    searchExternalTrains
 } from "../api/trainApi";
 
 const RECENT_SEARCHES_KEY =
@@ -264,27 +264,27 @@ function Search() {
         setSearching(true);
 
         try {
-            const response =
-                await searchTrains(
-                    search
-                );
+        const response =
+            await searchExternalTrains(
+                search
+            );
 
             saveRecentSearch(search);
 
-            navigate(
-                "/search-results",
-                {
-                    state: {
-                        search,
-                        trains:
-                            Array.isArray(
-                                response.data
-                            )
-                                ? response.data
-                                : []
-                    }
+        navigate(
+            "/search-results",
+            {
+                state: {
+                    search,
+                    trains:
+                        Array.isArray(
+                            response.data?.trains
+                        )
+                            ? response.data.trains
+                            : []
                 }
-            );
+            }
+        );
         } catch (error) {
             setError(
                 error.response?.data

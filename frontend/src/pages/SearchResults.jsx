@@ -8,7 +8,9 @@ import {
     useLocation,
     useNavigate
 } from "react-router-dom";
-
+import {
+    provisionJourney
+} from "../api/trainApi";
 function SearchResults() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -24,7 +26,10 @@ function SearchResults() {
 
     const [showBookableOnly, setShowBookableOnly] =
         useState(false);
-
+    const [provisioningTrain, setProvisioningTrain] =
+        useState(null);
+    const [provisionError, setProvisionError] =
+        useState("");
     if (
         !search ||
         !Array.isArray(trains)
@@ -39,7 +44,7 @@ function SearchResults() {
 
     const formatDate = date => {
         if (!date) {
-            return "—";
+            return "Ã¢â‚¬â€";
         }
 
         const value =
@@ -85,16 +90,10 @@ function SearchResults() {
     };
 
     const canBook = train => {
-        const status =
-            normaliseStatus(
-                train.status
-            );
-
-        return ![
-            "CANCELLED",
-            "INACTIVE"
-        ].includes(status);
-    };
+    return Boolean(
+        train?.trainNumber
+    );
+};
 
     const timeToMinutes = value => {
         if (!value) {
@@ -137,10 +136,10 @@ function SearchResults() {
                 result.sort(
                     (a, b) =>
                         timeToMinutes(
-                            a.departure_time
+                            a.source?.departure
                         ) -
                         timeToMinutes(
-                            b.departure_time
+                            b.source?.departure
                         )
                 );
             }
@@ -149,13 +148,13 @@ function SearchResults() {
                 sortBy ===
                 "ARRIVAL"
             ) {
-                result.sort(
+                                result.sort(
                     (a, b) =>
                         timeToMinutes(
-                            a.arrival_time
+                            a.destination?.arrival
                         ) -
                         timeToMinutes(
-                            b.arrival_time
+                            b.destination?.arrival
                         )
                 );
             }
@@ -167,10 +166,10 @@ function SearchResults() {
                 result.sort(
                     (a, b) =>
                         String(
-                            a.train_number
+                            a.trainNumber
                         ).localeCompare(
                             String(
-                                b.train_number
+                                b.trainNumber
                             ),
                             undefined,
                             {
@@ -195,7 +194,64 @@ function SearchResults() {
                 ).length,
             [trains]
         );
+const handleViewAvailability = async train => {
+    if (
+        !train?.trainNumber ||
+        provisioningTrain
+    ) {
+        return;
+    }
 
+    setProvisionError("");
+    setProvisioningTrain(
+        train.trainNumber
+    );
+
+    try {
+        const response =
+            await provisionJourney({
+                trainNumber:
+                    train.trainNumber,
+                journeyDate:
+                    search.date
+            });
+
+        const journeyId =
+            response.data?.journeyId;
+
+        if (!journeyId) {
+            throw new Error(
+                "Journey ID was not returned"
+            );
+        }
+
+        navigate(
+            `/journey/${journeyId}`,
+            {
+                state: {
+                    search,
+                    train: {
+                        ...train,
+                        journey_id:
+                            journeyId,
+                        train_id:
+                            response.data
+                                ?.trainId
+                    }
+                }
+            }
+        );
+    } catch (error) {
+        setProvisionError(
+            error.response?.data
+                ?.message ||
+            error.message ||
+            "Unable to prepare this journey."
+        );
+    } finally {
+        setProvisioningTrain(null);
+    }
+};
     return (
         <main className="page-container results-page">
             <section className="hero-section results-hero">
@@ -216,7 +272,7 @@ function SearchResults() {
                                 className="route-arrow"
                                 aria-hidden="true"
                             >
-                                →
+                                Ã¢â€ â€™
                             </span>
 
                             <span>
@@ -263,11 +319,11 @@ function SearchResults() {
 
                 <p>
                     {search.source}
-                    {" → "}
+                    {" Ã¢â€ â€™ "}
                     {
                         search.destination
                     }
-                    {" • "}
+                    {" Ã¢â‚¬Â¢ "}
                     {formatDate(
                         search.date
                     )}
@@ -280,7 +336,7 @@ function SearchResults() {
                         className="empty-state-symbol"
                         aria-hidden="true"
                     >
-                        —
+                        Ã¢â‚¬â€
                     </div>
 
                     <p className="eyebrow">
@@ -390,7 +446,14 @@ function SearchResults() {
                             </div>
                         </div>
                     </section>
-
+{provisionError && (
+    <div
+        className="form-error"
+        role="alert"
+    >
+        {provisionError}
+    </div>
+)}
                     {visibleTrains.length ===
                     0 ? (
                         <section className="content-card results-filter-empty">
@@ -443,31 +506,28 @@ function SearchResults() {
                                                     : ""
                                             }`}
                                             key={
-                                                train.journey_id
+                                                train.trainNumber
                                             }
                                         >
                                             <header className="train-heading">
                                                 <div className="train-identity">
                                                     <span className="train-number">
                                                         {
-                                                            train.train_number
+                                                            train.trainNumber
                                                         }
                                                     </span>
 
                                                     <div>
                                                         <h2>
                                                             {
-                                                                train.train_name
+                                                                train.trainName
                                                             }
                                                         </h2>
 
-                                                        <p>
-                                                            Journey #
-                                                            {
-                                                                train.journey_id
-                                                            }
-                                                        </p>
-                                                    </div>
+<p>
+    {train.type ||
+        "Train service"}
+</p>                                                    </div>
                                                 </div>
 
                                                 <span
@@ -477,9 +537,7 @@ function SearchResults() {
                                                             : ""
                                                     }`}
                                                 >
-                                                    {normaliseStatus(
-                                                        train.status
-                                                    )}
+AVAILABLE
                                                 </span>
                                             </header>
 
@@ -490,21 +548,17 @@ function SearchResults() {
                                                     </span>
 
                                                     <strong>
-                                                        {train.departure_time ||
-                                                            "—"}
-                                                    </strong>
+    {train.source?.departure ||
+        "Ã¢â‚¬â€"}
+</strong>
 
-                                                    <span>
-                                                        {
-                                                            train.source_code
-                                                        }
-                                                    </span>
+<span>
+    {train.source?.code}
+</span>
 
-                                                    <small>
-                                                        {
-                                                            train.source_name
-                                                        }
-                                                    </small>
+<small>
+    {train.source?.name}
+</small>
                                                 </div>
 
                                                 <div className="route-line">
@@ -517,7 +571,7 @@ function SearchResults() {
                                                         <span
                                                             aria-hidden="true"
                                                         >
-                                                            →
+                                                            Ã¢â€ â€™
                                                         </span>
                                                     </div>
 
@@ -533,21 +587,17 @@ function SearchResults() {
                                                     </span>
 
                                                     <strong>
-                                                        {train.arrival_time ||
-                                                            "—"}
-                                                    </strong>
+    {train.destination?.arrival ||
+        "Ã¢â‚¬â€"}
+</strong>
 
-                                                    <span>
-                                                        {
-                                                            train.destination_code
-                                                        }
-                                                    </span>
+<span>
+    {train.destination?.code}
+</span>
 
-                                                    <small>
-                                                        {
-                                                            train.destination_name
-                                                        }
-                                                    </small>
+<small>
+    {train.destination?.name}
+</small>
                                                 </div>
                                             </div>
 
@@ -557,7 +607,7 @@ function SearchResults() {
                                                         {
                                                             search.source
                                                         }
-                                                        {" → "}
+                                                        {" Ã¢â€ â€™ "}
                                                         {
                                                             search.destination
                                                         }
@@ -570,28 +620,26 @@ function SearchResults() {
                                                     </small>
                                                 </div>
 
-                                                <button
-                                                    className="primary-button"
-                                                    type="button"
-                                                    disabled={
-                                                        !bookable
-                                                    }
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/journey/${train.journey_id}`,
-                                                            {
-                                                                state: {
-                                                                    search,
-                                                                    train
-                                                                }
-                                                            }
-                                                        )
-                                                    }
-                                                >
-                                                    {bookable
-                                                        ? "View availability"
-                                                        : "Unavailable"}
-                                                </button>
+<button
+    className="primary-button"
+    type="button"
+    disabled={
+        !bookable ||
+        Boolean(provisioningTrain)
+    }
+    onClick={() =>
+        handleViewAvailability(
+            train
+        )
+    }
+>
+    {provisioningTrain ===
+    train.trainNumber
+        ? "Preparing journey..."
+        : bookable
+            ? "View availability"
+            : "Unavailable"}
+</button>
                                             </footer>
                                         </article>
                                     );

@@ -94,12 +94,58 @@ const generateTrainFares = async (req, res, next) => {
         next(error);
     }
 };
+const searchExternalTrains = async (req, res, next) => {
+    try {
+        const {
+            source,
+            destination,
+            date
+        } = req.query;
 
+        const result = await railwayService.getTrainsBetween(
+            source,
+            destination,
+            {
+                date,
+                live: false,
+                byCity: false
+            }
+        );
 
+        res.json({
+            source: "external",
+            provider: "railradar",
+            journeyDate: date,
+            ...result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+const getExternalLiveStatus = async (req, res, next) => {
+    try {
+        const { trainNumber } = req.params;
+        const { date } = req.query;
 
+        const result =
+            await railwayService.getLiveTrainStatus(
+                trainNumber,
+                date || null
+            );
 
+        res.json({
+            source: "external",
+            provider: "railradar",
+            ...result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 module.exports = {
     getExternalTrain,
+    searchExternalTrains,
+    getExternalLiveStatus,
     importExternalTrain,
     createTrainInventory,
     syncExternalTrain,

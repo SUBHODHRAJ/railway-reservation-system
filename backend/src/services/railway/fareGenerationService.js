@@ -1,19 +1,24 @@
 const db = require("../../config/db");
 
 const CLASS_RATES = {
+    "2S": 0.30,
     SL: 0.50,
     "3A": 1.35,
     "2A": 1.90,
-    "1A": 3.20
+    "1A": 3.20,
+    CC: 1.15,
+    EC: 2.40
 };
 
 const MIN_FARES = {
+    "2S": 30,
     SL: 50,
     "3A": 150,
     "2A": 250,
-    "1A": 400
+    "1A": 400,
+    CC: 120,
+    EC: 300
 };
-
 const roundFare = amount => Math.ceil(amount / 5) * 5;
 
 const generateFares = async trainNumber => {
