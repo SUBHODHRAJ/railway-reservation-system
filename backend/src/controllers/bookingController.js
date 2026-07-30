@@ -1,10 +1,14 @@
 const db = require("../config/db");
+
 const {
     releaseExpiredHolds
 } = require("../services/booking/reservationExpiryService");
 
-const HOLD_MINUTES = 10;
+const {
+    cancelBookingById
+} = require("../services/booking/bookingCancellationService");
 
+const HOLD_MINUTES = 10;
 const generatePNR = () => {
     return `TR${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
 };
@@ -631,137 +635,55 @@ const getBookingByPNR = async (req, res) => {
 };
 
 const cancelBooking = async (req, res) => {
-    let connection;
-
     try {
         const { id } = req.params;
 
-        connection = await db.getConnection();
-        await connection.beginTransaction();
-
-        const [bookings] = await connection.query(
-            `SELECT
-                b.id,
-                b.user_id,
-                b.status,
-                b.journey_id,
-                j.journey_date
-
-             FROM bookings b
-
-             JOIN journeys j
-                ON j.id = b.journey_id
-
-             WHERE b.id = ?
-
-             FOR UPDATE`,
+        const [bookings] = await db.query(
+            `SELECT id, user_id
+             FROM bookings
+             WHERE id = ?
+             LIMIT 1`,
             [id]
         );
 
         if (bookings.length === 0) {
-            await connection.rollback();
-
             return res.status(404).json({
                 message: "Booking not found"
             });
         }
 
-        const booking = bookings[0];
-
-        if (Number(booking.user_id) !== Number(req.user.id)) {
-            await connection.rollback();
-
+        if (
+            Number(bookings[0].user_id) !==
+            Number(req.user.id)
+        ) {
             return res.status(403).json({
                 message: "Access denied"
             });
         }
 
-        if (booking.status === "CANCELLED") {
-            await connection.rollback();
+        const result =
+            await cancelBookingById(id);
 
-            return res.status(400).json({
-                message: "Booking already cancelled"
-            });
-        }
-
-        if (
-            !["CONFIRMED", "PENDING", "PAYMENT_FAILED"].includes(
-                booking.status
-            )
-        ) {
-            await connection.rollback();
-
-            return res.status(400).json({
-                message: `Cannot cancel ${booking.status} booking`
-            });
-        }
-
-        await connection.query(
-            `UPDATE bookings
-             SET status = 'CANCELLED'
-             WHERE id = ?`,
-            [id]
-        );
-
-        await connection.query(
-            `UPDATE seat_availability sa
-
-             JOIN booking_seats bs
-                ON bs.journey_id = sa.journey_id
-               AND bs.seat_id = sa.seat_id
-
-             SET sa.status = 'AVAILABLE',
-                 sa.held_by = NULL,
-                 sa.hold_expires_at = NULL
-
-             WHERE bs.booking_id = ?`,
-            [id]
-        );
-
-        const [payments] = await connection.query(
-            `SELECT id
-             FROM payments
-             WHERE booking_id = ?
-               AND status = 'SUCCESS'
-             FOR UPDATE`,
-            [id]
-        );
-
-        if (payments.length > 0) {
-            await connection.query(
-                `UPDATE payments
-                 SET status = 'REFUNDED'
-                 WHERE booking_id = ?
-                   AND status = 'SUCCESS'`,
-                [id]
-            );
-        }
-
-        await connection.commit();
-
-        res.json({
-            message: "Booking cancelled successfully",
-            bookingId: Number(id),
-            bookingStatus: "CANCELLED",
+        return res.json({
+            message:
+                "Booking cancelled successfully",
+            bookingId:
+                result.bookingId,
+            bookingStatus:
+                result.bookingStatus,
             refund:
-                payments.length > 0
-                    ? "REFUNDED"
-                    : "NOT_REQUIRED"
+                result.refund
         });
     } catch (error) {
-        if (connection) {
-            try {
-                await connection.rollback();
-            } catch {}
-        }
-
         console.error(error);
 
-        res.status(500).json({
-            message: "Server error"
+        return res.status(
+            error.status || 500
+        ).json({
+            message:
+                error.message ||
+                "Server error"
         });
-    } finally {
-        if (connection) connection.release();
     }
 };
 module.exports = {

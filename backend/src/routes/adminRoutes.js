@@ -1,4 +1,4 @@
-﻿const express = require("express");
+const express = require("express");
 const {
     param,
     body
@@ -10,12 +10,14 @@ const {
     getBookings,
     getTrains,
     getJourneys,
-    updateJourneyStatus
+    updateJourneyStatus,
+    updateUserRole
 } = require("../controllers/adminController");
 
 const {
     authenticate,
-    adminOnly
+    adminOnly,
+
 } = require("../middleware/authMiddleware");
 
 const validate =
@@ -52,5 +54,20 @@ router.patch(
     validate,
     updateJourneyStatus
 );
+router.patch(
+    "/users/:id/role",
+    [
+        param("id")
+            .isInt({ min: 1 })
+            .withMessage("Invalid user ID"),
 
+        body("role")
+            .isIn(["USER", "ADMIN"])
+            .withMessage(
+                "Role must be USER or ADMIN"
+            )
+    ],
+    validate,
+    updateUserRole
+);
 module.exports = router;

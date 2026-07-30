@@ -324,6 +324,23 @@ const provisionTrainJourney = async (req, res) => {
 
         if (
             result.reason ===
+            "UNSUPPORTED_COACH_COMPOSITION"
+        ) {
+            return res.status(422).json({
+                message:
+                    "Seat booking is not available for this train because its reservable coach composition is unavailable or unsupported.",
+                provisioned: false,
+                reason: result.reason,
+                trainId: result.trainId,
+                trainNumber:
+                    result.trainNumber,
+                journeyDate:
+                    result.journeyDate
+            });
+        }
+
+        if (
+            result.reason ===
             "JOURNEY_ALREADY_EXISTS"
         ) {
             return res.json({

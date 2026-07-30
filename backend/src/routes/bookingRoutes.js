@@ -107,22 +107,23 @@ router.post(
                 "Invalid destination station"
             ),
         body("classType")
-            .trim()
-            .notEmpty()
-            .withMessage(
-                "Class type is required"
-            )
-            .isIn([
-                "1A",
-                "2A",
-                "3A",
-                "SL",
-                "CC",
-                "EC"
-            ])
-            .withMessage(
-                "Invalid class type"
-            ),
+    .trim()
+    .notEmpty()
+    .withMessage(
+        "Class type is required"
+    )
+    .isIn([
+            "2S",
+            "1A",
+            "2A",
+            "3A",
+            "SL",
+            "CC",
+            "EC"
+        ])
+    .withMessage(
+        "Invalid class type"
+        ),
         body("passengers")
             .isArray({ min: 1, max: 12 })
             .withMessage(

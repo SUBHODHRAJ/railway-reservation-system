@@ -1,12 +1,26 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
 
-import { getUsers } from "../api/adminApi";
+import {
+    getUsers,
+    updateUserRole
+} from "../api/adminApi";
+
+import { useAuth } from "../context/AuthContext";
 
 function Users() {
+    const { user: currentUser } = useAuth();
+
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const [query, setQuery] = useState("");
+    const [updatingUserId, setUpdatingUserId] =
+        useState(null);
 
     useEffect(() => {
         getUsers()
@@ -23,6 +37,65 @@ function Users() {
                 setLoading(false)
             );
     }, []);
+
+    const handleRoleChange = async (
+        targetUser,
+        role
+    ) => {
+        if (targetUser.role === role) {
+            return;
+        }
+
+        if (
+            Number(targetUser.id) ===
+            Number(currentUser?.id)
+        ) {
+            setError(
+                "You cannot change your own admin role"
+            );
+            return;
+        }
+
+        setError("");
+        setSuccess("");
+        setUpdatingUserId(targetUser.id);
+
+        try {
+            const response =
+                await updateUserRole(
+                    targetUser.id,
+                    role
+                );
+
+            const updatedUser =
+                response.data?.user;
+
+            setUsers(current =>
+                current.map(item =>
+                    item.id === targetUser.id
+                        ? {
+                              ...item,
+                              role:
+                                  updatedUser?.role ??
+                                  role
+                          }
+                        : item
+                )
+            );
+
+            setSuccess(
+                response.data?.message ||
+                "User role updated successfully"
+            );
+        } catch (error) {
+            setError(
+                error.response?.data?.message ||
+                "Unable to update user role"
+            );
+        } finally {
+            setUpdatingUserId(null);
+        }
+    };
 
     const filteredUsers = useMemo(() => {
         const value =
@@ -71,19 +144,30 @@ function Users() {
         <main className="page-container admin-list-page">
             <AdminHeader
                 title="Users"
-                description="View registered accounts and verification status."
+                description="View registered accounts and manage user roles."
                 count={users.length}
                 countLabel="users"
             />
 
-            {error ? (
+            {error && (
                 <div
                     className="form-error"
                     role="alert"
                 >
                     {error}
                 </div>
-            ) : loading ? (
+            )}
+
+            {success && (
+                <div
+                    className="admin-success-message"
+                    role="status"
+                >
+                    {success}
+                </div>
+            )}
+
+            {loading ? (
                 <AdminLoading text="Loading users..." />
             ) : (
                 <section className="admin-table-card">
@@ -128,53 +212,107 @@ function Users() {
 
                             <tbody>
                                 {filteredUsers.map(
-                                    user => (
-                                        <tr key={user.id}>
-                                            <td className="admin-id-cell">
-                                                #{user.id}
-                                            </td>
+                                    user => {
+                                        const isCurrentUser =
+                                            Number(user.id) ===
+                                            Number(
+                                                currentUser?.id
+                                            );
 
-                                            <td>
-                                                <strong className="admin-primary-cell">
-                                                    {user.name}
-                                                </strong>
-                                            </td>
+                                        const isUpdating =
+                                            updatingUserId ===
+                                            user.id;
 
-                                            <td>
-                                                {user.email}
-                                            </td>
+                                        return (
+                                            <tr key={user.id}>
+                                                <td className="admin-id-cell">
+                                                    #{user.id}
+                                                </td>
 
-                                            <td>
-                                                <span className="admin-role-badge">
-                                                    {user.role}
-                                                </span>
-                                            </td>
+                                                <td>
+                                                    <strong className="admin-primary-cell">
+                                                        {user.name}
+                                                    </strong>
 
-                                            <td>
-                                                <span
-                                                    className={`admin-verification ${
-                                                        user.email_verified
-                                                            ? "admin-verified"
-                                                            : "admin-unverified"
-                                                    }`}
-                                                >
-                                                    <i
-                                                        aria-hidden="true"
-                                                    />
+                                                    {isCurrentUser && (
+                                                        <span className="admin-current-user">
+                                                            You
+                                                        </span>
+                                                    )}
+                                                </td>
 
-                                                    {user.email_verified
-                                                        ? "Verified"
-                                                        : "Not verified"}
-                                                </span>
-                                            </td>
+                                                <td>
+                                                    {user.email}
+                                                </td>
 
-                                            <td>
-                                                {formatDate(
-                                                    user.created_at
-                                                )}
-                                            </td>
-                                        </tr>
-                                    )
+                                                <td>
+                                                    <select
+                                                        className="admin-role-select"
+                                                        value={
+                                                            user.role
+                                                        }
+                                                        disabled={
+                                                            isCurrentUser ||
+                                                            isUpdating
+                                                        }
+                                                        aria-label={`Role for ${user.name}`}
+                                                        title={
+                                                            isCurrentUser
+                                                                ? "You cannot change your own role"
+                                                                : "Change user role"
+                                                        }
+                                                        onChange={
+                                                            event =>
+                                                                handleRoleChange(
+                                                                    user,
+                                                                    event
+                                                                        .target
+                                                                        .value
+                                                                )
+                                                        }
+                                                    >
+                                                        <option value="USER">
+                                                            USER
+                                                        </option>
+
+                                                        <option value="ADMIN">
+                                                            ADMIN
+                                                        </option>
+                                                    </select>
+
+                                                    {isUpdating && (
+                                                        <span className="admin-role-updating">
+                                                            Updating...
+                                                        </span>
+                                                    )}
+                                                </td>
+
+                                                <td>
+                                                    <span
+                                                        className={`admin-verification ${
+                                                            user.email_verified
+                                                                ? "admin-verified"
+                                                                : "admin-unverified"
+                                                        }`}
+                                                    >
+                                                        <i
+                                                            aria-hidden="true"
+                                                        />
+
+                                                        {user.email_verified
+                                                            ? "Verified"
+                                                            : "Not verified"}
+                                                    </span>
+                                                </td>
+
+                                                <td>
+                                                    {formatDate(
+                                                        user.created_at
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    }
                                 )}
                             </tbody>
                         </table>

@@ -63,12 +63,30 @@ const synced = await syncTrain(
         };
     }
 
-const inventoryResult = await createInventory(
-    trainNumber,
-    journeyDate,
-    operating.train
-);
+let inventoryResult;
 
+try {
+    inventoryResult = await createInventory(
+        trainNumber,
+        journeyDate,
+        operating.train
+    );
+} catch (error) {
+    if (
+        error.message ===
+        "No supported reservable coach composition available"
+    ) {
+        return {
+            provisioned: false,
+            reason: "UNSUPPORTED_COACH_COMPOSITION",
+            trainId: synced.trainId,
+            trainNumber: String(trainNumber),
+            journeyDate
+        };
+    }
+
+    throw error;
+}
     const fareResult = await generateFares(
         trainNumber
     );

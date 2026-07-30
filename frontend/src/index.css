@@ -10125,3 +10125,39 @@ table {
         width: 100%;
     }
 }
+
+.admin-role-select {
+    min-width: 100px;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 8px;
+    background: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.admin-role-select:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.admin-role-updating {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.admin-current-user {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.admin-success-message {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(34, 197, 94, 0.1);
+}

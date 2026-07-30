@@ -313,29 +313,47 @@ const completePayment = async (req, res) => {
                 new Date(seat.hold_expires_at) < new Date()
         );
 
-        if (invalid) {
-            await connection.query(
-                `UPDATE payments
-                 SET status = 'FAILED'
-                 WHERE id = ?`,
-                [paymentId]
-            );
+if (invalid) {
+    await connection.query(
+        `UPDATE payments
+         SET status = 'FAILED'
+         WHERE id = ?`,
+        [paymentId]
+    );
 
-            await connection.query(
-                `UPDATE bookings
-                 SET status = 'PAYMENT_FAILED'
-                 WHERE id = ?`,
-                [payment.booking_id]
-            );
+    await connection.query(
+        `UPDATE bookings
+         SET status = 'PAYMENT_FAILED'
+         WHERE id = ?`,
+        [payment.booking_id]
+    );
 
-            await connection.commit();
+    await connection.query(
+        `UPDATE seat_availability sa
+         JOIN booking_seats bs
+            ON bs.journey_id = sa.journey_id
+           AND bs.seat_id = sa.seat_id
 
-            return res.status(409).json({
-                message: "Seat hold expired",
-                bookingStatus: "PAYMENT_FAILED"
-            });
-        }
+         SET sa.status = 'AVAILABLE',
+             sa.held_by = NULL,
+             sa.hold_expires_at = NULL
 
+         WHERE bs.booking_id = ?
+           AND sa.status = 'HELD'
+           AND sa.held_by = ?`,
+        [
+            payment.booking_id,
+            req.user.id
+        ]
+    );
+
+    await connection.commit();
+
+    return res.status(409).json({
+        message: "Seat hold expired",
+        bookingStatus: "PAYMENT_FAILED"
+    });
+}
         const providerPaymentId =
             `PAY_${paymentId}_${Date.now()}`;
 

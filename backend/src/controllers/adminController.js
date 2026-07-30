@@ -478,11 +478,78 @@ const updateJourneyStatus = async (req, res) => {
         }
     }
 };
+const updateUserRole = async (req, res) => {
+    try {
+        const userId = Number(req.params.id);
+        const { role } = req.body;
+
+        if (!Number.isInteger(userId) || userId <= 0) {
+            return res.status(400).json({
+                message: "Invalid user ID"
+            });
+        }
+
+        if (!["USER", "ADMIN"].includes(role)) {
+            return res.status(400).json({
+                message: "Role must be USER or ADMIN"
+            });
+        }
+
+        if (userId === Number(req.user.id)) {
+            return res.status(400).json({
+                message: "You cannot change your own admin role"
+            });
+        }
+
+        const [users] = await db.query(
+            `SELECT id, name, email, role
+             FROM users
+             WHERE id = ?
+             LIMIT 1`,
+            [userId]
+        );
+
+        if (users.length === 0) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        if (users[0].role === role) {
+            return res.json({
+                message: "User already has this role",
+                user: users[0]
+            });
+        }
+
+        await db.query(
+            `UPDATE users
+             SET role = ?
+             WHERE id = ?`,
+            [role, userId]
+        );
+
+        return res.json({
+            message: "User role updated successfully",
+            user: {
+                ...users[0],
+                role
+            }
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Unable to update user role"
+        });
+    }
+};
 module.exports = {
     dashboard,
     getUsers,
     getBookings,
     getTrains,
     getJourneys,
-    updateJourneyStatus
+    updateJourneyStatus,
+    updateUserRole
 };

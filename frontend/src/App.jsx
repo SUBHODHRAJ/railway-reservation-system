@@ -178,14 +178,6 @@ function App() {
                         </VerifiedRoute>
                     }
                 />
-                                <Route
-                    path="/admin/journeys"
-                    element={
-                        <AdminRoute>
-                            <AdminJourneys />
-                        </AdminRoute>
-                    }
-                />
 
                 <Route
                     path="/my-bookings"

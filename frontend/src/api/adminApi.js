@@ -28,3 +28,12 @@ export const updateAdminJourneyStatus = (
         { status }
     );
 };
+export const updateUserRole = (
+    userId,
+    role
+) => {
+    return api.patch(
+        `/admin/users/${userId}/role`,
+        { role }
+    );
+};
